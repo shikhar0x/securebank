@@ -1,166 +1,172 @@
-# SecureBank --- Project Memory
+# SecureBank — Project Memory
 
-## 1. Identity
+> Compact continuation state for developers and AI agents.
 
-**Project:** SecureBank\
-**Purpose:** DBMS Innovative Examination\
-**Team:** 12 second-year Computer Engineering students\
-**Database:** MySQL 8.x\
-**Backend:** Python + Flask\
-**Frontend:** HTML/CSS/JavaScript + Bootstrap\
+## 1. Project Identity
+
+**Project:** SecureBank
+**Purpose:** DBMS Innovative Examination
+**Team:** 12 second-year Computer Engineering students
+**Database:** PostgreSQL hosted through Supabase
+**Backend:** Python + Flask
+**Frontend:** HTML/CSS/JavaScript + Bootstrap or agreed equivalent
 **Architecture:** Modular monorepo
+
+SecureBank is an academic banking simulation and does not process real money.
 
 ## 2. Current Status
 
-**Phase:** Phase 0 --- Project Freeze and Setup\
-**Implementation:** Not started\
-**Next:** Finalize ER model and relational schema.
+**Phase:** Phase 0 — Project Freeze and Setup
 
-## 3. Core Syllabus
+Repository and planning documents are initialized.
 
-The project foundation is:
+**Immediate next step:** Finalize the compact ER model and PostgreSQL/Supabase schema.
 
-``` text
-ER/EER
-Relational Model
-SQL DDL/DML/DCL/TCL
-Constraints
-Joins/Subqueries
-Views
-Triggers
-Security/Authorization
-GRANT/REVOKE
-Normalization
-Transactions
-ACID
-Concurrency
-Locking
-Deadlock
-Recovery
+## 3. Technology Decision
+
+```text
+Frontend
+   ↓
+Flask Backend
+   ↓
+PostgreSQL
+   ↓
+Supabase
 ```
 
-These are syllabus concepts and are not the main innovation claims.
+Supabase is the platform/hosting layer. PostgreSQL is the DBMS.
 
-## 4. Controlled Extensions
+## 4. Authoritative Documents
 
-  Member   Extension
-  -------- ------------------------------------------------
-  1        Indexing + `EXPLAIN`
-  2        KYC/data quality
-  3        Account lifecycle + invariants
-  4        Stored procedures
-  5        Structured audit trail
-  6        Least privilege + limited hierarchy
-  7        EMI/amortization
-  8        Beneficiary verification/cooling period
-  9        Deterministic risk score
-  10       Role-filtered KPIs
-  11       Password hashing/sessions/parameterized access
-  12       Regression/failure injection
+```text
+docs/prd.md
+docs/architecture.md
+docs/phases.md
+docs/rules.md
+docs/memory.md
+```
 
-These extensions are intentionally small.
+## 5. Compact Core Database Model
 
-## 5. Planned Modules
-
-``` text
-auth
+```text
 customers
-accounts
-transactions
-beneficiaries
-loans
-compliance
-audit
-reports
-security
-```
-
-## 6. Planned Entities
-
-``` text
 users
 roles
-user_roles
-customers
-employees
 branches
-account_types
 accounts
-transaction_types
 transactions
 beneficiaries
-loan_types
 loans
-loan_payments
 audit_logs
 suspicious_transactions
-login_attempts
 ```
 
-## 7. Planned Roles
+The database remains intentionally small.
 
-``` text
-Customer
-Teller
-Loan Officer
-Branch Manager
-Auditor
-Compliance Officer
-Security Administrator
-```
+Views, triggers, functions/procedures, constraints and privileges are features rather than artificial tables.
 
-Exact privilege matrix is not yet frozen.
+## 6. Planned DBMS Features
 
-## 8. Planned Procedures
+- Primary keys
+- Foreign keys
+- Normalization
+- Constraints
+- Joins
+- Subqueries
+- DDL
+- DML
+- DCL
+- RBAC
+- GRANT
+- REVOKE
+- Views
+- Triggers
+- PostgreSQL functions/procedures
+- Transactions
+- COMMIT
+- ROLLBACK
+- Audit logging
 
-``` text
-sp_deposit
-sp_withdraw
-sp_transfer
-sp_apply_loan
-sp_make_loan_payment
-```
+## 7. Planned Views
 
-## 9. Planned Views
-
-``` text
+```text
 v_customer_accounts
 v_transaction_history
 v_branch_summary
 v_loan_portfolio
 v_audit_activity
-v_suspicious_transactions
 ```
 
-## 10. Planned Trigger Responsibilities
+Only required views should be implemented.
 
-1.  Transaction audit
-2.  Account/withdrawal validation
-3.  Closed/blocked account protection
-4.  Suspicious transaction recording where appropriate
+## 8. Planned Banking Functions
 
-## 11. Team Ownership
+```text
+sp_deposit
+sp_withdraw
+sp_transfer
+```
 
-  Member   Ownership
-  -------- ------------------------------------
-  1        Database Architecture
-  2        Customer Management
-  3        Account Management
-  4        Transaction Engine
-  5        Audit & Triggers
-  6        RBAC & Security
-  7        Loan Management
-  8        Beneficiary & Transfer Security
-  9        Compliance
-  10       Views & Reporting
-  11       Frontend & Application Integration
-  12       Testing & Integration
+Loan-specific functions may be added if required.
+
+## 9. Planned Trigger Responsibilities
+
+1. Transaction audit.
+2. Account/transaction validation.
+3. Protection of inactive/closed accounts.
+4. Relevant suspicious-transaction recording.
+
+## 10. Team Ownership
+
+| Member | Ownership |
+|---|---|
+| 1 | Database Architecture / ER / schema integration |
+| 2 | Customer Management |
+| 3 | Account Management |
+| 4 | Transaction Engine |
+| 5 | Audit & Triggers |
+| 6 | RBAC & Security |
+| 7 | Loan Management |
+| 8 | Beneficiary & Transfer Security |
+| 9 | Compliance |
+| 10 | Views & Reporting |
+| 11 | Application/Frontend Integration |
+| 12 | Testing & Integration |
+
+Known assignments:
+
+- Member 2 — Khushi
+- Member 3 — Tripti
+- Member 5 — Hiti
+- Member 6 — Manyata
+- Member 7 — 48
+- Member 8 — Vidula
+- Member 10 — Nikhil V
+- Member 11 — Abhi 47
+- Member 4 — backend/Transaction Engine owner
+
+## 11. Controlled Extension Map
+
+| Member | Extension |
+|---|---|
+| 1 | Indexing + `EXPLAIN` |
+| 2 | KYC/data-quality checks |
+| 3 | Account lifecycle/balance invariants |
+| 4 | Stored banking operations |
+| 5 | Structured audit information |
+| 6 | Least-privilege refinement |
+| 7 | EMI/amortization |
+| 8 | Beneficiary cooling period |
+| 9 | Deterministic risk scoring |
+| 10 | Role-filtered/date-range reporting |
+| 11 | Password hashing/session handling/parameterized access |
+| 12 | Regression and controlled failure testing |
 
 ## 12. Repository State
 
-Expected:
+Expected structure:
 
-``` text
+```text
 securebank/
 ├── docs/
 ├── database/
@@ -170,61 +176,117 @@ securebank/
 └── scripts/
 ```
 
-No feature is considered implemented merely because it appears in this
-file.
+Database order:
 
-## 13. Completed Planning
+```text
+00_reset.sql
+01_schema.sql
+02_constraints.sql
+03_seed_data.sql
+04_roles.sql
+05_views.sql
+06_triggers.sql
+07_procedures.sql
+08_test_data.sql
+database/tests/*
+```
 
--   [x] Project concept
--   [x] 12-member ownership
--   [x] 11-page report constraint
--   [x] Research direction
--   [x] Monorepo architecture
--   [x] Syllabus foundation identified
--   [x] Controlled extension assigned to every member
--   [x] Development rules
+## 13. Important Current Decisions
 
-## 14. Pending
+- Supabase/PostgreSQL is final.
+- Database remains compact.
+- No artificial tables just for member ownership.
+- Database member owns final ER/schema integration.
+- Backend owner integrates the agreed database with Flask.
+- Frontend owner consumes backend APIs.
+- All 12 members have genuine technical ownership.
+- Each member has one small controlled extension.
+- No AI/ML, blockchain, microservices, real payment gateways or unnecessary infrastructure.
 
--   [ ] ER model
--   [ ] Relational schema
--   [ ] Normalization
--   [ ] Constraints
--   [ ] Seed data
--   [ ] Roles
--   [ ] Views
--   [ ] Triggers
--   [ ] Procedures
--   [ ] Extension queries
--   [ ] Backend
--   [ ] Frontend
--   [ ] Tests
--   [ ] Final research references
+## 14. Completed Work
 
-## 15. Research State
+### Planning
 
-Target approximately 12--15 strong references from IEEE Xplore, ACM,
-NIST, OWASP, MySQL documentation and recognized DBMS textbooks.
+- [x] Project concept
+- [x] 12-member technical ownership
+- [x] 11-page report constraint
+- [x] Research requirements
+- [x] Monorepo architecture
+- [x] PostgreSQL/Supabase selection
+- [x] Compact core database model
+- [x] Development rules
 
-## 16. Next Actions
+### Database
 
-1.  Finalize entity list.
-2.  Create ER diagram.
-3.  Define attributes/types.
-4.  Define PK/FK.
-5.  Review normalization.
-6.  Identify initial indexes.
-7.  Freeze `01_schema.sql`.
-8.  Create seed data.
-9.  Define RBAC matrix.
-10. Define extension test cases.
+- [ ] Final ER model
+- [ ] Final schema
+- [ ] Normalization review
+- [ ] Constraints
+- [ ] Seed data
+- [ ] Roles/privileges
+- [ ] Views
+- [ ] Triggers
+- [ ] Functions/procedures
+- [ ] Tests
 
-## 17. AI Continuation Protocol
+### Backend
 
-When continuing: 1. Read `prd.md`. 2. Read `architecture.md`. 3. Read
-`phases.md`. 4. Read `rules.md`. 5. Read `memory.md`. 6. Inspect actual
-repository state. 7. Determine current phase. 8. Make the smallest
-logical change. 9. Test it. 10. Update this file. 11. Report changed
-files, tests and next step.
+- [ ] DB connection
+- [ ] Authentication
+- [ ] Authorization
+- [ ] Feature APIs
+- [ ] Transaction integration
+- [ ] Error handling
 
-Never use this file as proof that an implementation exists.
+### Frontend
+
+- [ ] Login
+- [ ] Dashboards
+- [ ] Customer UI
+- [ ] Account UI
+- [ ] Transaction UI
+- [ ] Loan UI
+- [ ] Beneficiary UI
+- [ ] Compliance UI
+- [ ] Audit/report UI
+
+### Testing
+
+- [ ] RBAC
+- [ ] Constraints
+- [ ] Triggers
+- [ ] Transaction/rollback
+- [ ] Views
+- [ ] API
+- [ ] End-to-end demo
+
+## 15. Immediate Next Actions
+
+1. Finalize compact ER model.
+2. Agree on exact attributes for the 10 core tables.
+3. Database member creates the schema in Supabase.
+4. Retain the agreed PostgreSQL SQL.
+5. Implement constraints.
+6. Add seed/demo data.
+7. Implement roles/privileges.
+8. Implement views.
+9. Implement triggers.
+10. Implement banking functions.
+11. Connect Flask backend.
+12. Integrate frontend.
+13. Run complete test matrix.
+
+## 16. AI Continuation Protocol
+
+When starting a new session:
+
+1. Read all five documents.
+2. Inspect the actual repository/database state.
+3. Determine the current phase.
+4. Identify the smallest next logical task.
+5. Make only required changes.
+6. Test them.
+7. Update `memory.md`.
+8. Report exactly what changed and what remains.
+
+Never treat this file as proof that an implementation exists. Verify the actual repository and Supabase database.

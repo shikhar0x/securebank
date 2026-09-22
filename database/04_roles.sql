@@ -1,0 +1,17 @@
+-- SecureBank - RBAC
+-- Review these statements against the Supabase project before execution.
+-- Supabase-managed roles/permissions should not be modified blindly.
+
+-- Example:
+--
+-- CREATE ROLE teller_role;
+-- GRANT USAGE ON SCHEMA public TO teller_role;
+--
+-- GRANT SELECT, INSERT ON public.transactions TO teller_role;
+-- GRANT SELECT ON public.accounts TO teller_role;
+--
+-- REVOKE UPDATE, DELETE ON public.audit_logs FROM teller_role;
+--
+-- GRANT EXECUTE ON FUNCTION sp_deposit(BIGINT, NUMERIC) TO teller_role;
+-- GRANT EXECUTE ON FUNCTION sp_withdraw(BIGINT, NUMERIC) TO teller_role;
+-- GRANT EXECUTE ON FUNCTION sp_transfer(BIGINT, BIGINT, NUMERIC) TO teller_role;

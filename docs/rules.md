@@ -1,147 +1,228 @@
-# SecureBank --- Project Rules
+# SecureBank — Development Rules
 
-## 1. Primary Rule
+## 1. Source of Truth
 
-SecureBank is primarily a **DBMS project**. The TCET syllabus is the
-foundation; controlled extensions provide the innovative component.
+The Git repository is authoritative for implementation.
 
-## 2. Syllabus Foundation
+- `prd.md` → requirements
+- `architecture.md` → architecture
+- `phases.md` → work allocation
+- `rules.md` → engineering constraints
+- `memory.md` → current state
 
-ER/EER, relational design, normalization, SQL, constraints, joins,
-subqueries, views, triggers, GRANT/REVOKE, transactions, ACID,
-concurrency, locking, deadlock and recovery are syllabus concepts.
+Verify actual code/database state when documentation and implementation disagree.
 
-Do not falsely claim these concepts themselves are outside the syllabus.
+## 2. Database Platform
 
-## 3. Controlled Extensions
-
-Use only the following planned extensions:
-
--   M1: indexing and basic `EXPLAIN`
--   M2: KYC/data-quality and duplicate candidates
--   M3: account lifecycle and balance invariants
--   M4: stored procedures
--   M5: structured audit trail
--   M6: least privilege and limited role hierarchy
--   M7: EMI/amortization
--   M8: beneficiary verification/cooling period
--   M9: deterministic transaction risk scoring
--   M10: role-filtered KPIs/date-range reporting
--   M11: password hashing/sessions/parameterized access
--   M12: automated regression/failure injection
-
-Do not keep adding extensions merely to make the project sound advanced.
-
-## 4. No Overengineering
-
-Do not introduce blockchain, ML/AI fraud detection, microservices,
-distributed databases, cloud infrastructure or payment gateways unless
-the faculty explicitly changes the scope.
-
-## 5. Technical Contribution
-
-Every member must have: - implementation responsibility -
-SQL/application work - an extension - tests - viva-ready explanation
-
-## 6. Database Authority
-
-The database is authoritative for persistent data, integrity,
-privileges, views, triggers, stored procedures, transaction atomicity
-and audit records.
-
-Frontend visibility is not security.
-
-## 7. Transaction Rule
-
-Critical financial operations must preserve atomicity:
-
-``` text
-BEGIN
-→ validate
-→ modify
-→ record
-→ COMMIT
+```text
+PostgreSQL
+    ↓
+Supabase
 ```
 
-Critical failure:
+PostgreSQL is the DBMS. Do not use MySQL-specific syntax.
 
-``` text
+## 3. Scope Rule
+
+Keep the project basic and purposeful.
+
+Core model:
+
+```text
+customers
+users
+roles
+branches
+accounts
+transactions
+beneficiaries
+loans
+audit_logs
+suspicious_transactions
+```
+
+Do not create tables merely to give someone ownership. A member can own SQL, views, triggers, functions, backend APIs, frontend integration, security, testing or performance analysis.
+
+Additional tables require a genuine functional or normalization reason.
+
+## 4. AI Agent Rules
+
+The AI agent must:
+
+1. Read relevant project files first.
+2. Check `memory.md`.
+3. Follow the project documents.
+4. Preserve working behavior.
+5. Work one logical step at a time.
+6. Prefer minimal changes.
+7. Never redesign without a concrete requirement.
+8. Never invent existing files/tables/APIs.
+9. Verify repository/database assumptions.
+10. Update `memory.md` after meaningful changes.
+11. Give copy-pasteable commands.
+12. Test before declaring completion.
+13. Report failures honestly.
+
+## 5. AI Must Not
+
+- Claim an untested feature works.
+- Claim unverified SQL permissions work.
+- Delete working code unnecessarily.
+- Add unnecessary frameworks.
+- Add AI/ML merely for appearance.
+- Replace database security with frontend-only checks.
+- Put secrets in source files.
+- Generate fake test results.
+- Invent references.
+- Modify unrelated modules.
+- Commit passwords, `.env`, local datasets or generated artifacts.
+
+## 6. Git Rules
+
+Stable branch:
+
+```text
+main
+```
+
+Feature branches:
+
+```text
+feature/<module>
+fix/<issue>
+test/<module>
+```
+
+Each commit should represent one logical change.
+
+Examples:
+
+```text
+feat: add transfer function
+fix: reject withdrawal from inactive account
+test: add RBAC authorization cases
+docs: update architecture
+```
+
+## 7. Database Rules
+
+Use `snake_case`, descriptive names and consistent table naming.
+
+Every major entity has a primary key.
+
+Use explicit foreign keys.
+
+Prefer:
+
+- `NOT NULL`
+- `UNIQUE`
+- `PRIMARY KEY`
+- `FOREIGN KEY`
+- `CHECK`
+
+For money use:
+
+```sql
+NUMERIC(15,2)
+```
+
+## 8. RBAC Rules
+
+Application roles and PostgreSQL privileges are related but distinct.
+
+Application roles are part of the project model.
+
+PostgreSQL `GRANT`/`REVOKE` demonstrates database authorization.
+
+Frontend visibility is never the only security mechanism.
+
+## 9. Transaction Rules
+
+Transfers must be atomic:
+
+```text
+BEGIN
+↓
+Debit
+↓
+Credit
+↓
+Record transaction
+↓
+COMMIT
+```
+
+On failure:
+
+```text
 ROLLBACK
 ```
 
-## 8. Audit Rule
+No partial transfer may remain.
 
-Audit records should be append-oriented. Ordinary operational roles must
-not freely alter/delete audit records. Capture actor, event, timestamp
-and relevant before/after information.
+## 10. Audit Rules
 
-## 9. RBAC Rule
+Sensitive operations should generate audit records through database triggers where appropriate.
 
-Use least privilege. Test both allowed and denied operations. Do not
-rely on hidden frontend buttons.
+Audit information should include, where relevant:
 
-## 10. Compliance Rule
+- entity/table
+- record identifier
+- operation
+- actor
+- timestamp
+- before/after information
 
-Suspicious-transaction detection must be deterministic and documented.
-Never describe it as real-world fraud prediction.
+Ordinary operational users must not freely alter audit history.
 
-Risk scoring must expose its contributing rules.
+## 11. Security Rules
 
-## 11. Security Rule
+- Never store plaintext passwords.
+- Use password hashing.
+- Never commit secrets.
+- Use environment variables.
+- Use parameterized SQL.
+- Validate input.
+- Enforce authorization server-side.
+- Never expose the Supabase service-role key to frontend code.
 
-Never store plaintext passwords. Never commit `.env`, credentials or API
-keys. Use parameterized database access.
+## 12. Extension Rules
 
-## 12. SQL Rule
+Every member receives one small meaningful extension.
 
-Every contributor must understand every query they submit, including its
-purpose, expected result and failure condition.
+Each extension must be implemented, tested and explainable in the viva.
 
-## 13. Data Rule
+Do not add AI/ML, blockchain, microservices, real payment gateways or unnecessary infrastructure.
 
-Use fictional academic banking data only. Do not use real customer
-financial information or real credentials.
+## 13. Testing Rules
 
-## 14. Testing Rule
+Every module owner provides at least:
 
-Every module must have success, invalid/business-rule and integration
-tests where applicable. Critical operations require failure tests.
+1. One successful case.
+2. One invalid/failure case.
+3. One relevant boundary/security case where applicable.
 
-## 15. Git Rule
+Never fabricate test results.
 
-Use feature branches. Keep commits focused and descriptive. Do not
-commit virtual environments, node_modules, secrets, temporary dumps or
-generated junk.
+## 14. Integration Rules
 
-## 16. Documentation Rule
+Members own modules but share the agreed schema and API contracts.
 
-Never claim a feature is implemented until it exists and has been
-tested. Planning documents do not prove implementation.
+Do not independently redesign shared tables.
 
-## 17. AI Agent Rule
+The database member maintains the final Supabase schema/ER model.
 
-An AI assistant must read all five documents, inspect the actual
-repository, make the smallest logical change, preserve working
-architecture, test the change and update `memory.md`.
+The backend owner integrates the database with Flask.
 
-## 18. Innovation Rule
+The frontend owner consumes backend APIs.
 
-The intended project shape is:
+## 15. Academic Integrity
 
-``` text
-DBMS syllabus
-      +
-realistic banking system
-      +
-small meaningful extensions
-```
+Every member must honestly be able to explain:
 
-Not:
-
-``` text
-unrelated advanced technologies
-      +
-banking UI
-      +
-some SQL
-```
+- their technical contribution,
+- their SQL/code,
+- the DBMS concept,
+- their extension,
+- their test case,
+- how their work integrates with SecureBank.

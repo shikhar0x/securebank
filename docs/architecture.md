@@ -1,23 +1,35 @@
-# SecureBank --- Project Architecture
+# SecureBank — Project Architecture
 
-## 1. Architecture
+## 1. Architecture Goals
 
-``` text
-Frontend
-   ↓ HTTP/JSON
-Flask Backend
-   ↓ SQL / Procedures
-MySQL Database
-```
+- Modular
+- Monorepo-based
+- Suitable for 12 developers
+- Database-first
+- Simple enough for second-year students
+- Reproducible
+- Easy to demonstrate
+- Resistant to unnecessary redesign
 
-The database is authoritative for persistent data, integrity
-constraints, privileges, views, triggers, stored procedures, transaction
-atomicity and audit records.
+## 2. Technology Stack
 
-## 2. Repository
+| Layer | Technology |
+|---|---|
+| Database | PostgreSQL hosted by Supabase |
+| Backend | Python + Flask |
+| Frontend | HTML/CSS/JavaScript + Bootstrap or agreed equivalent |
+| Version Control | Git + GitHub |
+| Diagrams | draw.io / Figma |
 
-``` text
+Supabase is the hosting/platform layer. PostgreSQL is the actual relational DBMS.
+
+## 3. Repository Structure
+
+```text
 securebank/
+├── README.md
+├── .gitignore
+├── .env.example
 ├── docs/
 │   ├── prd.md
 │   ├── architecture.md
@@ -37,6 +49,10 @@ securebank/
 │   └── tests/
 ├── backend/
 │   ├── app/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── db.py
+│   │   ├── main.py
 │   │   ├── auth/
 │   │   ├── customers/
 │   │   ├── accounts/
@@ -47,161 +63,162 @@ securebank/
 │   │   ├── audit/
 │   │   ├── reports/
 │   │   └── security/
-│   └── tests/
+│   ├── tests/
+│   └── requirements.txt
 ├── frontend/
 ├── diagrams/
 └── scripts/
 ```
 
-## 3. Database Layer
+## 4. Logical Architecture
 
-``` text
-Base Tables
-    ↓
-Constraints
-    ↓
-Views / Triggers / Procedures
-    ↓
-Backend Services
-    ↓
-API
-    ↓
+```text
 Frontend
+   ↓ HTTP/JSON
+Flask Backend
+   ↓ SQL / Functions
+Supabase PostgreSQL
+   ├── Tables / Constraints
+   ├── Roles / Privileges
+   ├── Views
+   ├── Triggers
+   ├── Functions / Procedures
+   ├── Transactions
+   └── Audit
 ```
 
-## 4. Module Extensions
+## 5. Responsibilities
 
-### Member 1 --- Database Architecture
+### Database
 
-ER/EER, normalization, keys and schema. Extension: selected indexes and
-basic `EXPLAIN` comparison.
+Authoritative for:
 
-### Member 2 --- Customer
+- Persistent banking data
+- Referential integrity
+- Database permissions
+- Views
+- Triggers
+- Functions/procedures
+- Transaction integrity
+- Audit records
 
-Customer CRUD and joins. Extension: deterministic KYC completeness and
-duplicate-candidate queries.
+### Flask Backend
 
-### Member 3 --- Accounts
+Responsible for:
 
-Accounts, account types and status. Extension: lifecycle transitions and
-balance invariants.
+- API endpoints
+- Authentication/session handling
+- Input validation
+- Calling database operations
+- Application authorization
+- Response formatting
 
-### Member 4 --- Transactions
+### Frontend
 
-Deposit, withdrawal, transfer, ACID and rollback. Extension:
-`sp_deposit`, `sp_withdraw`, `sp_transfer`.
+Responsible for:
 
-### Member 5 --- Audit
+- UI
+- Forms
+- Dashboards
+- Displaying results
+- Calling backend APIs
 
-Triggers and audit table. Extension: actor, event, timestamp and
-relevant before/after values.
+Frontend hiding alone is never considered security.
 
-### Member 6 --- Security
+## 6. Core Database Model
 
-Roles, GRANT/REVOKE and authorization. Extension: least-privilege matrix
-and limited role hierarchy.
+```text
+customers
+users
+roles
+branches
+accounts
+transactions
+beneficiaries
+loans
+audit_logs
+suspicious_transactions
+```
 
-### Member 7 --- Loans
+## 7. Module Ownership
 
-Loans and payments. Extension: EMI/amortization calculation.
+| Member | Module | Technical Output |
+|---|---|---|
+| 1 | Database Architecture | ER, normalization, schema integration, indexes |
+| 2 | Customer Management | Customer SQL + CRUD API + data-quality checks |
+| 3 | Account Management | Account SQL + lifecycle/balance rules |
+| 4 | Transaction Engine | Deposit/withdrawal/transfer SQL + atomic operations |
+| 5 | Audit & Triggers | Audit usage + PostgreSQL triggers |
+| 6 | RBAC & Security | Roles, GRANT/REVOKE, authorization |
+| 7 | Loan Management | Loan SQL + EMI calculations |
+| 8 | Beneficiary & Transfers | Beneficiary validation/security |
+| 9 | Compliance | Risk rules + suspicious workflow |
+| 10 | Views & Reporting | Views + reporting queries |
+| 11 | Application Integration | Authentication/session + frontend/API integration |
+| 12 | Testing & Integration | SQL/API/regression/integration tests |
 
-### Member 8 --- Beneficiaries
+## 8. SQL Execution Order
 
-Beneficiary management and transfer eligibility. Extension: verification
-and cooling period.
+```text
+00_reset.sql
+↓
+01_schema.sql
+↓
+02_constraints.sql
+↓
+03_seed_data.sql
+↓
+04_roles.sql
+↓
+05_views.sql
+↓
+06_triggers.sql
+↓
+07_procedures.sql
+↓
+08_test_data.sql
+↓
+database/tests/*
+```
 
-### Member 9 --- Compliance
+## 9. Supabase Rule
 
-Suspicious transaction rules. Extension: deterministic risk score based
-on documented rules.
+Supabase should simplify hosting and development, not replace the DBMS work.
 
-### Member 10 --- Reports
+The project must visibly demonstrate PostgreSQL:
 
-Views, joins and aggregates. Extension: role-filtered KPIs and
-date-range reports.
+- DDL
+- DML
+- DCL
+- Constraints
+- Joins
+- Views
+- Triggers
+- Functions/procedures
+- Transactions
+- COMMIT/ROLLBACK
+- Authorization
 
-### Member 11 --- Application
+## 10. Transfer Flow
 
-Flask/frontend integration. Extension: password hashing, sessions and
-parameterized access.
-
-### Member 12 --- Testing
-
-SQL/integration testing. Extension: automated regression and controlled
-failure injection.
-
-## 5. Transfer Flow
-
-``` text
-User
- ↓
+```text
 Frontend
- ↓
-Backend authentication/authorization
- ↓
-Beneficiary/account eligibility
- ↓
-sp_transfer(...)
- ↓
-BEGIN
- ↓
-Validate → Debit → Credit → Record
- ↓
-Audit Trigger
- ↓
+   ↓
+Flask transaction endpoint
+   ↓
+Validate request
+   ↓
+PostgreSQL transaction/function
+   ↓
+Debit source
+   ↓
+Credit destination
+   ↓
+Record transaction
+   ↓
+Audit trigger
+   ↓
 COMMIT
 ```
 
-Failure at a critical step:
-
-``` text
-ROLLBACK → no partial transfer
-```
-
-## 6. Audit Flow
-
-``` text
-Sensitive Database Event
-        ↓
-Trigger
-        ↓
-audit_logs
-        ↓
-Audit View
-        ↓
-Authorized Auditor
-```
-
-## 7. Compliance Flow
-
-``` text
-Transaction
-    ↓
-Documented Rules
-    ↓
-Rule Matches
-    ↓
-Academic Risk Score
-    ↓
-suspicious_transactions
-    ↓
-Compliance Review
-```
-
-The risk score is deterministic; this is not an AI/ML fraud detector.
-
-## 8. RBAC Flow
-
-``` text
-Authenticated User
-      ↓
-Application Role
-      ↓
-Backend Authorization
-      ↓
-Database Privilege
-      ↓
-Allow / Deny
-```
-
-Frontend button hiding is never considered sufficient security.
+Failure causes `ROLLBACK`, leaving no partial transfer.

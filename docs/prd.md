@@ -1,137 +1,163 @@
-# SecureBank --- Product Requirements Document
+# SecureBank — Product Requirements Document
 
 ## 1. Project Overview
 
-SecureBank is an academic **Role-Based Secure Banking Database
-Management System** for the DBMS Innovative Examination. It uses MySQL
-8.x, Python/Flask and a web frontend. It is a simulation and does not
-process real money.
+**Project:** SecureBank — Role-Based Secure Banking Database Management System
+**Academic Context:** DBMS Innovative Examination
+**Team Size:** 12 students
+**Database:** PostgreSQL hosted through Supabase
+**Backend:** Python + Flask
+**Frontend:** HTML/CSS/JavaScript + Bootstrap or agreed equivalent
 
-The project follows the TCET DBMS syllabus as its foundation and adds
-**small, meaningful extensions to every member's module**. The
-extensions must remain limited so the project still clearly remains a
-DBMS project.
+SecureBank is an academic banking simulation. It does not process real money or connect to real banking infrastructure.
 
-## 2. Syllabus Foundation
+## 2. Project Philosophy
 
-The TCET syllabus covers ER/EER, relational design, SQL DDL/DML/DCL/TCL,
-constraints, joins, subqueries, views, triggers, security/authorization,
-GRANT/REVOKE, normalization, transactions, ACID, concurrency, locking,
-timestamp protocols, deadlocks and recovery.
+The project should remain simple enough for second-year students, strong enough to demonstrate DBMS concepts beyond basic CRUD, modular enough for 12 students to make identifiable technical contributions, and small enough to explain clearly during the viva.
 
-These are therefore treated as the **syllabus foundation**, not as the
-main innovation claim.
+A team member does **not** need a separate table to have a technical contribution.
 
-## 3. Controlled Innovation
+## 3. Objectives
 
-  -----------------------------------------------------------------------------
-  Member                  Core module             Small extension
-  ----------------------- ----------------------- -----------------------------
-  1                       Database Architecture   Indexing and basic `EXPLAIN`
-                                                  analysis
+1. Design a normalized relational banking database.
+2. Implement application and database-level RBAC.
+3. Implement meaningful triggers.
+4. Implement secure database views.
+5. Implement stored procedures/functions for important banking operations.
+6. Demonstrate ACID transactions and rollback.
+7. Maintain an audit trail.
+8. Implement deterministic suspicious-transaction monitoring.
+9. Provide role-specific workflows.
+10. Test valid, invalid and unauthorized operations.
+11. Produce reproducible PostgreSQL/Supabase SQL.
+12. Produce an 11-page maximum research-backed report.
 
-  2                       Customer Management     KYC completeness and
-                                                  duplicate-candidate checks
+## 4. Target Roles
 
-  3                       Account Management      Account lifecycle/state rules
-                                                  and balance invariants
+| Role | Main Responsibility |
+|---|---|
+| Customer | Own account information, transactions and beneficiaries |
+| Teller | Customer/account operations, deposits and withdrawals |
+| Loan Officer | Loan applications and processing |
+| Branch Manager | Branch-level approval and reports |
+| Auditor | Audit and transaction reporting |
+| Compliance Officer | Suspicious-transaction review |
+| Security Administrator | User and role administration |
 
-  4                       Transaction Engine      Stored-procedure-based
-                                                  banking operations
+## 5. Functional Requirements
 
-  5                       Audit & Triggers        Structured audit trail with
-                                                  actor/time/before-after data
+- Authentication and role determination.
+- Customer CRUD.
+- Account creation and management.
+- Deposits and withdrawals.
+- Atomic fund transfers.
+- Beneficiary management.
+- Loan applications and payments.
+- Audit logging.
+- Deterministic suspicious-transaction monitoring.
+- Role-authorized reporting through views.
+- RBAC.
+- Transaction integrity with COMMIT/ROLLBACK.
 
-  6                       RBAC & Security         Least-privilege refinement
-                                                  and limited role hierarchy
+## 6. Core Database Model
 
-  7                       Loan Management         EMI/amortization schedule
+The database should remain intentionally compact:
 
-  8                       Beneficiary & Transfers Verification/cooling-period
-                                                  rule
+```text
+customers
+users
+roles
+branches
+accounts
+transactions
+beneficiaries
+loans
+audit_logs
+suspicious_transactions
+```
 
-  9                       Compliance              Deterministic transaction
-                                                  risk scoring
+These tables cover the planned workflows. Views, triggers, functions/procedures, constraints and privileges are database features, not separate tables.
 
-  10                      Views & Reporting       Role-filtered KPIs and
-                                                  date-range reporting
+Additional tables require a genuine functional or normalization reason.
 
-  11                      Application Integration Password hashing, sessions
-                                                  and parameterized DB access
+## 7. Business Rules
 
-  12                      Testing & Integration   Automated regression and
-                                                  controlled failure injection
-  -----------------------------------------------------------------------------
-
-Every extension must be small, demonstrable and explainable in a DBMS
-viva.
-
-## 4. Objectives
-
-1.  Build a normalized relational banking database.
-2.  Demonstrate the complete DBMS syllabus through a realistic system.
-3.  Implement database authorization and least privilege.
-4.  Implement views, triggers and stored procedures.
-5.  Demonstrate ACID transactions and rollback.
-6.  Maintain structured audit records.
-7.  Implement deterministic suspicious-transaction monitoring.
-8.  Add one controlled extension to every member's module.
-9.  Provide role-specific workflows.
-10. Produce reproducible SQL setup and tests.
-
-## 5. Roles
-
-Customer, Teller, Loan Officer, Branch Manager, Auditor, Compliance
-Officer and Security Administrator.
-
-## 6. Core Requirements
-
--   Authentication and role-specific access.
--   Customer and account management.
--   Deposits, withdrawals and atomic transfers.
--   Beneficiary management.
--   Loans, payments and EMI schedule.
--   Audit logging.
--   Suspicious transaction review.
--   Secure reporting through views.
--   RBAC and database privileges.
--   Reproducible tests.
-
-## 7. Core Entities
-
-`users`, `roles`, `user_roles`, `customers`, `employees`, `branches`,
-`account_types`, `accounts`, `transaction_types`, `transactions`,
-`beneficiaries`, `loan_types`, `loans`, `loan_payments`, `audit_logs`,
-`suspicious_transactions`, `login_attempts`.
-
-## 8. Important Business Rules
-
-1.  Closed/blocked accounts cannot perform normal financial
-    transactions.
-2.  Withdrawals cannot exceed permitted balance.
-3.  Transfers are atomic.
-4.  Failed transfers roll back.
-5.  Unauthorized roles cannot perform restricted operations.
-6.  Sensitive operations generate audit records.
-7.  Ordinary users cannot freely modify audit records.
-8.  Suspicious-transaction rules are deterministic and documented.
-9.  Loan approval is separated from ordinary teller operations.
+1. Closed/inactive accounts cannot perform normal financial transactions.
+2. Withdrawals cannot exceed permitted available balance.
+3. Transfers debit and credit within one atomic transaction.
+4. Failed transfers roll back all related changes.
+5. Users cannot perform operations outside their permissions.
+6. Defined sensitive operations generate audit records.
+7. Ordinary operational users cannot freely modify audit history.
+8. Suspicious-transaction rules are deterministic and documented.
+9. Loan approval is separated from ordinary teller operations.
 10. Reports expose only intended information.
-11. Beneficiaries may require verification/cooling period.
-12. Account state transitions must follow defined paths.
-13. Important business rules must have an owner and test.
+11. Beneficiary security may include verification/cooling-period rules.
+12. Important business rules have an owner and test case.
 
-## 9. Report
+## 8. Controlled Extensions
 
-Maximum 11 pages. The report must distinguish syllabus concepts from
-project extensions and use approximately 12--15 strong, traceable
-references from sources such as IEEE Xplore, ACM, NIST, OWASP, MySQL
-documentation and recognized DBMS textbooks.
+| Member | Core Area | Small Extension |
+|---|---|---|
+| 1 | Database Architecture | Indexing + basic `EXPLAIN` analysis |
+| 2 | Customer Management | KYC/data-quality checks |
+| 3 | Account Management | Account lifecycle/balance invariants |
+| 4 | Transaction Engine | Stored banking operations |
+| 5 | Audit & Triggers | Structured audit information |
+| 6 | RBAC & Security | Least-privilege refinement |
+| 7 | Loan Management | EMI/amortization |
+| 8 | Beneficiary & Transfers | Beneficiary cooling period |
+| 9 | Compliance | Deterministic risk scoring |
+| 10 | Views & Reporting | Role-filtered/date-range reporting |
+| 11 | Application Integration | Password hashing, sessions, parameterized DB access |
+| 12 | Testing & Integration | Regression and controlled failure testing |
 
-## 10. Acceptance Criteria
+Do not add AI/ML, blockchain, microservices, real payment gateways, distributed databases or unnecessary infrastructure.
 
-Clean database initialization, working end-to-end workflows,
-allowed/denied RBAC tests, working views/triggers/procedures, rollback
-demonstration, audit records, suspicious-transaction detection, loan
-schedule, beneficiary rule, extension tests and identifiable technical
-contributions from all 12 members.
+## 9. Research Requirements
+
+Required areas: RBAC, database security, auditing/logging, views/controlled data exposure, transactions/ACID, and banking security context.
+
+Preferred sources:
+
+- IEEE Xplore
+- ACM Digital Library
+- NIST
+- OWASP
+- PostgreSQL/Supabase official documentation
+- Recognized DBMS textbooks
+
+Target approximately 12–15 strong references.
+
+## 10. Report Requirements
+
+Maximum length: **11 pages**.
+
+Suggested sections:
+
+1. Title + Abstract
+2. Introduction + Problem Statement
+3. Literature Review
+4. Objectives + Existing vs Proposed System
+5. Architecture + ER Diagram
+6. Database Design
+7. RBAC + Security
+8. Triggers + Views + Procedures + Transactions
+9. Working Model + Screenshots
+10. Testing + Results
+11. Conclusion + Limitations + Future Scope + References
+
+## 11. Acceptance Criteria
+
+- PostgreSQL database initializes correctly.
+- Core workflows work end-to-end.
+- RBAC demonstrates allowed and denied operations.
+- Agreed triggers execute correctly.
+- Agreed views return correct data.
+- Core banking functions/procedures work.
+- Transfer rollback can be demonstrated.
+- Audit records are generated correctly.
+- Suspicious-transaction rules can be demonstrated.
+- Tests are documented and pass.
+- All 12 members have identifiable technical contributions.
+- No secrets or local-only data are committed.

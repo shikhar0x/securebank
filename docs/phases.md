@@ -1,146 +1,232 @@
-# SecureBank --- Development Phases and Team Work
+# SecureBank — Development Phases and Team Work Allocation
 
-## 1. Rule
+## 1. Development Strategy
 
-Every member owns a real technical module, SQL work, tests and one small
-out-of-syllabus extension. Nobody is assigned only PPT, documentation,
-research or testing.
+The project is divided into phases. Team members own technical areas, but integration is shared.
 
-## 2. Team Allocation
+No member should be assigned only documentation, PPT, research or testing. Every member must produce technical work.
 
-  Member   Ownership                 Extension
-  -------- ------------------------- ------------------------------
-  1        Database Architecture     Indexing + `EXPLAIN`
-  2        Customer Management       KYC/data quality
-  3        Account Management        Lifecycle + invariants
-  4        Transaction Engine        Stored procedures
-  5        Audit & Triggers          Structured audit trail
-  6        RBAC & Security           Least privilege/hierarchy
-  7        Loan Management           EMI/amortization
-  8        Beneficiary & Transfers   Verification/cooling period
-  9        Compliance                Risk scoring
-  10       Views & Reporting         Role-filtered KPIs
-  11       Application Integration   Authentication/security
-  12       Testing & Integration     Regression/failure injection
+A separate table is not required for every member.
 
-## Phase 0 --- Setup
+# Phase 0 — Project Freeze and Setup
 
-All members configure the repository, understand their module, read the
-five documents and follow the extension boundary.
+Confirm scope, PostgreSQL/Supabase, repository, conventions, Git workflow and documentation.
 
-## Phase 1 --- Database Foundation
+All members clone the repository, configure the environment and understand their module.
 
-**M1:** ER/EER, schema, normalization, PK/FK, indexes.
+# Phase 1 — ER Model and Database Foundation
 
-**M2:** `customers`, constraints, seed data, CRUD and data-quality
-queries.
+### Member 1 — Database Architecture
+- ER diagram
+- Relational schema
+- Normalization
+- PK/FK strategy
+- Naming conventions
+- Supabase schema integration
+- Basic indexing
 
-**M3:** `accounts`, `account_types`, status rules and balance
-constraints.
+### Member 2 — Customer
+- Customer fields/constraints
+- Seed data
+- KYC/data-quality requirements
 
-**M4:** `transactions`, `transaction_types`, relationships and
-transaction constraints.
+### Member 3 — Accounts
+- Account fields/status
+- Balance rules
+- Constraints and seed data
 
-**M5:** `audit_logs` structure and audit fields.
+### Member 4 — Transactions
+- Transaction fields/relationships
+- Transaction constraints
+- Deposit/withdrawal/transfer requirements
 
-**M6:** `users`, `roles`, `user_roles`, permission design.
+### Member 5 — Audit
+- Audit-log requirements
+- Trigger audit fields
 
-**M7:** `loans`, `loan_types`, `loan_payments`.
+### Member 6 — RBAC
+- Users
+- Roles
+- Authorization requirements
+- GRANT/REVOKE requirements
 
-**M8:** `beneficiaries`, eligibility fields and constraints.
+### Member 7 — Loans
+- Loan fields/relationships
+- Loan payment requirements
+- EMI calculation requirements
 
-**M9:** `suspicious_transactions`, compliance statuses and rule fields.
+### Member 8 — Beneficiaries
+- Beneficiary fields
+- Transfer eligibility
+- Verification/cooling-period rule
 
-**M10:** reporting requirements and source-table mapping.
+### Member 9 — Compliance
+- Suspicious transaction requirements
+- Risk-level fields
+- Deterministic rules
 
-**M11:** Flask/database connection and frontend skeleton.
+### Member 10 — Reporting
+- Required report fields
+- Reporting requirements
+- Table-to-report mapping
 
-**M12:** test database, baseline data and test format.
+### Member 11 — Application Integration
+- Flask skeleton
+- DB connection
+- Configuration
+- Authentication/session foundation
 
-Exit criteria: ER model reviewed, schema validated and clean
-initialization works.
+### Member 12 — Testing
+- Test format
+- Baseline test data
+- Integration checklist
 
-## Phase 2 --- Core Operations
+### Exit Criteria
+- ER model reviewed
+- Core schema reviewed
+- Tables created in Supabase
+- Relationships validated
+- Clean initialization works
 
-M2: customer operations and data quality.
+# Phase 2 — Core Banking Operations
 
-M3: account operations and lifecycle.
+- Member 2: customer CRUD/validation
+- Member 3: account creation/status/operations
+- Member 4: deposit/withdrawal/transaction logic
+- Member 7: loan application/payment operations
+- Member 8: beneficiary management
+- Member 11: backend API integration
+- Members 1, 5, 6, 9, 10, 12: review, security, reporting and tests
 
-M4: deposit/withdrawal/transfer engine.
+Minimum end-to-end flow:
 
-M7: loan application/payment.
-
-M8: beneficiary operations.
-
-M11: backend APIs and UI.
-
-M1/M5/M6/M9/M10/M12 review integration, constraints, security, audit and
-tests.
-
-## Phase 3 --- Security, Procedures and Audit
-
-**M4:** implement and explain:
-
-``` text
-sp_deposit()
-sp_withdraw()
-sp_transfer()
+```text
+Customer → Account → Deposit → Withdrawal → Transaction
 ```
 
-Demonstrate COMMIT and ROLLBACK.
+# Phase 3 — RBAC and Database Security
 
-**M5:** implement audit triggers and structured audit records.
+### Member 6
+- PostgreSQL roles where required
+- GRANT
+- REVOKE
+- Authorization matrix
+- Security tests
 
-**M6:** implement roles, GRANT, REVOKE and least-privilege tests.
+### Member 11
+- Authentication
+- Sessions
+- Role-aware routing
+- Role-specific UI
 
-**M8:** implement beneficiary verification/cooling-period rule.
+### Member 10
+Validate report/view access.
 
-## Phase 4 --- Loans, Compliance and Reports
+### Member 12
+Test allowed/denied operations.
 
-**M7:** EMI, amortization schedule and outstanding balance.
+All module owners verify role boundaries.
 
-**M9:** suspicious rules and deterministic risk score.
+# Phase 4 — Triggers, Functions and Transactions
 
-**M10:** views, date-range reports and role-filtered KPIs.
+### Member 5
+- Audit triggers
+- Validation triggers
+- Trigger tests
 
-## Phase 5 --- Application
+### Member 4
+- Deposit function/procedure
+- Withdrawal function/procedure
+- Transfer function/procedure
+- Atomic transaction demonstration
 
-**M11:** login, password hashing, sessions, role-aware dashboards and
-parameterized DB access.
+### Member 7
+Loan-related functions where required.
 
-All module owners provide the required API/database interaction.
+### Member 9
+Suspicious transaction rules.
 
-## Phase 6 --- Testing
+### Member 12
+Trigger, rollback, atomicity and invalid-operation tests.
 
-**M12:** regression suite, SQL tests, integration tests and controlled
-failure injection.
+Transfer demonstration:
 
-Every member supplies: - one success test - one invalid/business-rule
-test - one integration test where applicable
+```text
+BEGIN
+↓
+Debit
+↓
+Credit
+↓
+Transaction record
+↓
+Audit
+↓
+COMMIT
+```
 
-## Phase 7 --- Final Demonstration
+Failure must demonstrate complete rollback.
 
-1.  Login
-2.  Role-specific dashboard
-3.  Customer/account workflow
-4.  Deposit
-5.  Transfer
-6.  Automatic audit record
-7.  Unauthorized operation
-8.  Beneficiary eligibility
-9.  Loan EMI/schedule
-10. Suspicious transaction/risk score
-11. Reporting view
-12. Rollback demonstration
+# Phase 5 — Views and Reporting
 
-## Viva Requirement
+### Member 10
+Implement only required views, such as:
 
-Every member must explain their tables, queries, constraints, extension,
-test case and interaction with another module.
+```text
+v_customer_accounts
+v_transaction_history
+v_branch_summary
+v_loan_portfolio
+v_audit_activity
+```
 
-## Extension Boundary
+Module owners validate results. Member 6 validates access. Member 11 integrates reports. Member 12 tests them.
 
-Extensions must be: 1. Small. 2. Relevant. 3. Demonstrable. 4.
-Explainable in a DBMS viva.
+# Phase 6 — Controlled Extensions
 
-Do not add unrelated advanced technologies.
+Each member completes one small extension:
+
+1. Index/EXPLAIN analysis
+2. Customer data-quality checks
+3. Account lifecycle/balance invariants
+4. Stored banking operations
+5. Structured audit information
+6. Least-privilege refinement
+7. EMI/amortization
+8. Beneficiary cooling period
+9. Deterministic risk score
+10. Role-filtered/date-range reporting
+11. Secure password/session handling
+12. Regression/failure testing
+
+# Phase 7 — Frontend Integration
+
+Member 11 leads login, dashboard, customer, account, transaction, loan, beneficiary, compliance and reporting screens.
+
+All module owners provide API requirements and verify their screens.
+
+Member 12 performs UI-to-database integration testing.
+
+# Phase 8 — Integration and Testing
+
+Member 12 leads the final matrix:
+
+- Authentication
+- RBAC
+- CRUD
+- Constraints
+- Triggers
+- Functions/procedures
+- Transactions
+- Views
+- Audit
+- Compliance
+- Extensions
+
+Members 1–11 fix module and integration defects.
+
+# Phase 9 — Research and Report
+
+Research/documentation is shared work, not a replacement for technical contribution.
+
+Each member supplies their module description, SQL/code, DBMS concept, extension, test case and evidence.
