@@ -15,12 +15,10 @@ Verify actual code/database state when documentation and implementation disagree
 ## 2. Database Platform
 
 ```text
-PostgreSQL
-    ↓
-Supabase
+MySQL 8.0+
 ```
 
-PostgreSQL is the DBMS. Do not use MySQL-specific syntax.
+MySQL is the DBMS. All SQL must use standard MySQL 8.0+ syntax.
 
 ## 3. Scope Rule
 
@@ -123,16 +121,16 @@ Prefer:
 For money use:
 
 ```sql
-NUMERIC(15,2)
+DECIMAL(15,2)
 ```
 
 ## 8. RBAC Rules
 
-Application roles and PostgreSQL privileges are related but distinct.
+Application roles and database privileges are related but distinct.
 
 Application roles are part of the project model.
 
-PostgreSQL `GRANT`/`REVOKE` demonstrates database authorization.
+Database `GRANT`/`REVOKE` demonstrates database authorization.
 
 Frontend visibility is never the only security mechanism.
 

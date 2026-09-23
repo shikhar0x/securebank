@@ -15,13 +15,13 @@
 
 | Layer | Technology |
 |---|---|
-| Database | PostgreSQL hosted by Supabase |
-| Backend | Python + Flask |
+| Database | MySQL 8.0+ |
+| Backend | Python + Flask + mysql-connector-python |
 | Frontend | HTML/CSS/JavaScript + Bootstrap or agreed equivalent |
 | Version Control | Git + GitHub |
 | Diagrams | draw.io / Figma |
 
-Supabase is the hosting/platform layer. PostgreSQL is the actual relational DBMS.
+MySQL 8.0+ is the relational DBMS.
 
 ## 3. Repository Structure
 
@@ -76,13 +76,13 @@ securebank/
 Frontend
    ↓ HTTP/JSON
 Flask Backend
-   ↓ SQL / Functions
-Supabase PostgreSQL
+   ↓ SQL / Procedures / Functions
+MySQL 8.0+
    ├── Tables / Constraints
    ├── Roles / Privileges
    ├── Views
    ├── Triggers
-   ├── Functions / Procedures
+   ├── Procedures / Functions
    ├── Transactions
    └── Audit
 ```
@@ -181,11 +181,9 @@ suspicious_transactions
 database/tests/*
 ```
 
-## 9. Supabase Rule
+## 9. DBMS Implementation
 
-Supabase should simplify hosting and development, not replace the DBMS work.
-
-The project must visibly demonstrate PostgreSQL:
+The project must visibly demonstrate MySQL 8.0+:
 
 - DDL
 - DML
@@ -194,7 +192,7 @@ The project must visibly demonstrate PostgreSQL:
 - Joins
 - Views
 - Triggers
-- Functions/procedures
+- Procedures/functions
 - Transactions
 - COMMIT/ROLLBACK
 - Authorization
@@ -208,7 +206,7 @@ Flask transaction endpoint
    ↓
 Validate request
    ↓
-PostgreSQL transaction/function
+MySQL transaction / stored procedure
    ↓
 Debit source
    ↓

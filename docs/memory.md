@@ -7,8 +7,8 @@
 **Project:** SecureBank
 **Purpose:** DBMS Innovative Examination
 **Team:** 12 second-year Computer Engineering students
-**Database:** PostgreSQL hosted through Supabase
-**Backend:** Python + Flask
+**Database:** MySQL 8.0+
+**Backend:** Python + Flask + mysql-connector-python
 **Frontend:** HTML/CSS/JavaScript + Bootstrap or agreed equivalent
 **Architecture:** Modular monorepo
 
@@ -16,11 +16,10 @@ SecureBank is an academic banking simulation and does not process real money.
 
 ## 2. Current Status
 
-**Phase:** Phase 0 — Project Freeze and Setup
+**Phase:** Phase 3 — Backend API Development (Complete)
 
-Repository and planning documents are initialized.
-
-**Immediate next step:** Finalize the compact ER model and PostgreSQL/Supabase schema.
+Repository and planning documents are updated.
+Backend implementation in Flask with MySQL 8.0+ connector is complete.
 
 ## 3. Technology Decision
 
@@ -29,12 +28,10 @@ Frontend
    ↓
 Flask Backend
    ↓
-PostgreSQL
-   ↓
-Supabase
+MySQL 8.0+
 ```
 
-Supabase is the platform/hosting layer. PostgreSQL is the DBMS.
+MySQL 8.0+ is the relational DBMS.
 
 ## 4. Authoritative Documents
 
@@ -81,7 +78,7 @@ Views, triggers, functions/procedures, constraints and privileges are features r
 - REVOKE
 - Views
 - Triggers
-- PostgreSQL functions/procedures
+- MySQL functions/procedures
 - Transactions
 - COMMIT
 - ROLLBACK
@@ -231,12 +228,12 @@ database/tests/*
 
 ### Backend
 
-- [ ] DB connection
-- [ ] Authentication
-- [ ] Authorization
-- [ ] Feature APIs
-- [ ] Transaction integration
-- [ ] Error handling
+- [x] DB connection
+- [x] Authentication
+- [x] Authorization
+- [x] Feature APIs
+- [x] Transaction integration
+- [x] Error handling
 
 ### Frontend
 
