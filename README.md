@@ -10,9 +10,14 @@ The project demonstrates core DBMS concepts taught in the curriculum and extends
 
 ## Technology Stack
 
+<<<<<<< HEAD
 - MySQL
+=======
+- MySQL 8.0+
+>>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 - Python
 - Flask
+- mysql-connector-python
 - HTML
 - CSS
 - JavaScript
@@ -67,3 +72,52 @@ securebank/
 ├── diagrams/
 └── scripts/
 See docs/ for the complete project requirements, architecture, development phases, engineering rules and project memory.
+```
+
+## Backend Quickstart
+
+### 1. Setup Virtual Environment & Dependencies
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+```
+
+### 2. Environment Configuration
+
+```bash
+cp .env.example .env
+# Edit .env with your MySQL credentials
+```
+
+### 3. Run Development Server
+
+```bash
+python -m flask --app backend.app.main run --debug
+```
+
+### 4. Health Check
+
+```bash
+curl http://localhost:5000/api/health
+```
+
+### 5. Major API Endpoint Groups
+
+- **Auth**: `/api/auth/login`, `/api/auth/logout`, `/api/auth/me`
+- **Customers**: `/api/customers`, `/api/customers/<id>`
+- **Accounts**: `/api/accounts`, `/api/accounts/<id>`, `/api/customers/<id>/accounts`, `/api/accounts/<id>/status`
+- **Transactions**: `/api/transactions/deposit`, `/api/transactions/withdraw`, `/api/transactions/transfer`, `/api/accounts/<id>/transactions`
+- **Beneficiaries**: `/api/customers/<id>/beneficiaries`, `/api/beneficiaries/<id>/status`
+- **Loans**: `/api/loans`, `/api/loans/<id>`, `/api/customers/<id>/loans`, `/api/loans/<id>/status`
+- **Compliance**: `/api/compliance/suspicious`, `/api/compliance/suspicious/<id>/review`
+- **Audit Logs**: `/api/audit/logs`
+- **Reports (Views)**: `/api/reports/customer-accounts`, `/api/reports/transactions`, `/api/reports/branches`, `/api/reports/loans`, `/api/reports/audit`
+
+### 6. Run Backend Tests
+
+```bash
+source .venv/bin/activate
+python -m pytest backend/tests/ -v
+```

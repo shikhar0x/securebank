@@ -15,10 +15,17 @@ Verify actual code/database state when documentation and implementation disagree
 ## 2. Database Platform
 
 ```text
+<<<<<<< HEAD
 MySQL
 ```
 
 MySQL is the DBMS. Do not use PostgreSQL-specific syntax.
+=======
+MySQL 8.0+
+```
+
+MySQL is the DBMS. All SQL must use standard MySQL 8.0+ syntax.
+>>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 
 ## 3. Scope Rule
 
@@ -125,16 +132,28 @@ Prefer:
 For money use:
 
 ```sql
+<<<<<<< HEAD
 DECIMAL(10,2)
+=======
+DECIMAL(15,2)
+>>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 ```
 
 ## 8. RBAC Rules
 
+<<<<<<< HEAD
 Application roles and MySQL privileges are related but distinct.
 
 Application roles are part of the project model.
 
 MySQL `GRANT`/`REVOKE` demonstrates database authorization.
+=======
+Application roles and database privileges are related but distinct.
+
+Application roles are part of the project model.
+
+Database `GRANT`/`REVOKE` demonstrates database authorization.
+>>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 
 Frontend visibility is never the only security mechanism.
 
