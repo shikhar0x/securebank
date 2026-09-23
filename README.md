@@ -10,7 +10,7 @@ The project demonstrates core DBMS concepts taught in the curriculum and extends
 
 ## Technology Stack
 
-- PostgreSQL (Supabase)
+- MySQL
 - Python
 - Flask
 - HTML

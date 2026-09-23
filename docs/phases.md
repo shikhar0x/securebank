@@ -10,7 +10,7 @@ A separate table is not required for every member.
 
 # Phase 0 — Project Freeze and Setup
 
-Confirm scope, PostgreSQL/Supabase, repository, conventions, Git workflow and documentation.
+Confirm scope, MySQL, repository, conventions, Git workflow and documentation.
 
 All members clone the repository, configure the environment and understand their module.
 
@@ -22,7 +22,7 @@ All members clone the repository, configure the environment and understand their
 - Normalization
 - PK/FK strategy
 - Naming conventions
-- Supabase schema integration
+- MySQL schema integration
 - Basic indexing
 
 ### Member 2 — Customer
@@ -84,7 +84,7 @@ All members clone the repository, configure the environment and understand their
 ### Exit Criteria
 - ER model reviewed
 - Core schema reviewed
-- Tables created in Supabase
+- Tables created in MySQL
 - Relationships validated
 - Clean initialization works
 
@@ -107,7 +107,7 @@ Customer → Account → Deposit → Withdrawal → Transaction
 # Phase 3 — RBAC and Database Security
 
 ### Member 6
-- PostgreSQL roles where required
+- MySQL roles where required
 - GRANT
 - REVOKE
 - Authorization matrix
@@ -175,9 +175,8 @@ Implement only required views, such as:
 ```text
 v_customer_accounts
 v_transaction_history
-v_branch_summary
-v_loan_portfolio
-v_audit_activity
+v_loan_report
+v_audit_report
 ```
 
 Module owners validate results. Member 6 validates access. Member 11 integrates reports. Member 12 tests them.

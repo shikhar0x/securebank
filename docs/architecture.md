@@ -15,13 +15,13 @@
 
 | Layer | Technology |
 |---|---|
-| Database | PostgreSQL hosted by Supabase |
+| Database | MySQL |
 | Backend | Python + Flask |
 | Frontend | HTML/CSS/JavaScript + Bootstrap or agreed equivalent |
 | Version Control | Git + GitHub |
 | Diagrams | draw.io / Figma |
 
-Supabase is the hosting/platform layer. PostgreSQL is the actual relational DBMS.
+MySQL is the relational DBMS, run locally or on any standard MySQL server (e.g. via MySQL Workbench).
 
 ## 3. Repository Structure
 
@@ -76,8 +76,8 @@ securebank/
 Frontend
    ↓ HTTP/JSON
 Flask Backend
-   ↓ SQL / Functions
-Supabase PostgreSQL
+   ↓ SQL / Procedures
+MySQL
    ├── Tables / Constraints
    ├── Roles / Privileges
    ├── Views
@@ -148,7 +148,7 @@ suspicious_transactions
 | 2 | Customer Management | Customer SQL + CRUD API + data-quality checks |
 | 3 | Account Management | Account SQL + lifecycle/balance rules |
 | 4 | Transaction Engine | Deposit/withdrawal/transfer SQL + atomic operations |
-| 5 | Audit & Triggers | Audit usage + PostgreSQL triggers |
+| 5 | Audit & Triggers | Audit usage + MySQL triggers |
 | 6 | RBAC & Security | Roles, GRANT/REVOKE, authorization |
 | 7 | Loan Management | Loan SQL + EMI calculations |
 | 8 | Beneficiary & Transfers | Beneficiary validation/security |
@@ -181,11 +181,14 @@ suspicious_transactions
 database/tests/*
 ```
 
-## 9. Supabase Rule
+`database/securebank_mysql.sql` is the same schema as a single consolidated
+file, meant for a quick "open and execute" run in MySQL Workbench. The
+numbered scripts above are the modular, step-by-step equivalent used for
+development and review.
 
-Supabase should simplify hosting and development, not replace the DBMS work.
+## 9. MySQL Rule
 
-The project must visibly demonstrate PostgreSQL:
+The project must visibly demonstrate MySQL:
 
 - DDL
 - DML
@@ -208,7 +211,7 @@ Flask transaction endpoint
    ↓
 Validate request
    ↓
-PostgreSQL transaction/function
+MySQL transaction/procedure
    ↓
 Debit source
    ↓

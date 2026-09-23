@@ -5,7 +5,7 @@
 **Project:** SecureBank — Role-Based Secure Banking Database Management System
 **Academic Context:** DBMS Innovative Examination
 **Team Size:** 12 students
-**Database:** PostgreSQL hosted through Supabase
+**Database:** MySQL
 **Backend:** Python + Flask
 **Frontend:** HTML/CSS/JavaScript + Bootstrap or agreed equivalent
 
@@ -29,7 +29,7 @@ A team member does **not** need a separate table to have a technical contributio
 8. Implement deterministic suspicious-transaction monitoring.
 9. Provide role-specific workflows.
 10. Test valid, invalid and unauthorized operations.
-11. Produce reproducible PostgreSQL/Supabase SQL.
+11. Produce reproducible MySQL SQL.
 12. Produce an 11-page maximum research-backed report.
 
 ## 4. Target Roles
@@ -124,7 +124,7 @@ Preferred sources:
 - ACM Digital Library
 - NIST
 - OWASP
-- PostgreSQL/Supabase official documentation
+- MySQL official documentation
 - Recognized DBMS textbooks
 
 Target approximately 12–15 strong references.
@@ -149,7 +149,7 @@ Suggested sections:
 
 ## 11. Acceptance Criteria
 
-- PostgreSQL database initializes correctly.
+- MySQL database initializes correctly.
 - Core workflows work end-to-end.
 - RBAC demonstrates allowed and denied operations.
 - Agreed triggers execute correctly.

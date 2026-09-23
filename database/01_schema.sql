@@ -1,115 +1,128 @@
--- SecureBank - Core PostgreSQL Schema
+-- SecureBank - Core MySQL Schema
+--
+-- This is the modular, numbered breakdown (01-08 + tests/) of the single
+-- consolidated file database/securebank_mysql.sql. Both describe the same
+-- schema; run either the one file in MySQL Workbench, or these scripts in
+-- order (see docs/architecture.md, section 8) for a step-by-step build.
+--
+-- Column naming: short table prefix + name (see securebank_mysql.sql
+-- header for the full prefix list: c_, r_, u_, b_, a_, be_, l_, t_, log_, s_).
 
-CREATE TABLE IF NOT EXISTS customers (
-    customer_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    full_name VARCHAR(120) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    phone VARCHAR(20) UNIQUE NOT NULL,
-    address TEXT,
-    date_of_birth DATE,
-    kyc_status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
-        CHECK (kyc_status IN ('PENDING', 'VERIFIED', 'REJECTED')),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE DATABASE IF NOT EXISTS securebank;
+USE securebank;
+
+CREATE TABLE customers (
+    c_id       INT AUTO_INCREMENT PRIMARY KEY,
+    c_name     VARCHAR(100) NOT NULL,
+    c_email    VARCHAR(100) UNIQUE NOT NULL,
+    c_phone    VARCHAR(15) UNIQUE NOT NULL,
+    c_address  VARCHAR(200),
+    c_dob      DATE,
+    c_kyc      VARCHAR(20) DEFAULT 'PENDING'
+        CHECK (c_kyc IN ('PENDING', 'VERIFIED', 'REJECTED')),
+    c_created  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS roles (
-    role_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    role_name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
+CREATE TABLE roles (
+    r_id    INT AUTO_INCREMENT PRIMARY KEY,
+    r_name  VARCHAR(30) UNIQUE NOT NULL,
+    r_desc  VARCHAR(100)
 );
 
-CREATE TABLE IF NOT EXISTS users (
-    user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    customer_id BIGINT UNIQUE REFERENCES customers(customer_id),
-    role_id BIGINT NOT NULL REFERENCES roles(role_id),
-    username VARCHAR(80) UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE users (
+    u_id        INT AUTO_INCREMENT PRIMARY KEY,
+    u_cust_id   INT,
+    u_role      INT NOT NULL,
+    u_name      VARCHAR(50) UNIQUE NOT NULL,
+    u_password  VARCHAR(100) NOT NULL,
+    u_created   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (u_cust_id) REFERENCES customers(c_id),
+    FOREIGN KEY (u_role) REFERENCES roles(r_id)
 );
 
-CREATE TABLE IF NOT EXISTS branches (
-    branch_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    branch_code VARCHAR(20) UNIQUE NOT NULL,
-    branch_name VARCHAR(120) NOT NULL,
-    city VARCHAR(80) NOT NULL,
-    address TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE branches (
+    b_id       INT AUTO_INCREMENT PRIMARY KEY,
+    b_code     VARCHAR(20) UNIQUE NOT NULL,
+    b_name     VARCHAR(100) NOT NULL,
+    b_city     VARCHAR(50) NOT NULL,
+    b_address  VARCHAR(200)
 );
 
-CREATE TABLE IF NOT EXISTS accounts (
-    account_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    customer_id BIGINT NOT NULL REFERENCES customers(customer_id),
-    branch_id BIGINT NOT NULL REFERENCES branches(branch_id),
-    account_number VARCHAR(30) UNIQUE NOT NULL,
-    account_type VARCHAR(20) NOT NULL
-        CHECK (account_type IN ('SAVINGS', 'CURRENT')),
-    balance NUMERIC(15,2) NOT NULL DEFAULT 0
-        CHECK (balance >= 0),
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'
-        CHECK (status IN ('ACTIVE', 'FROZEN', 'CLOSED')),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE accounts (
+    a_id         INT AUTO_INCREMENT PRIMARY KEY,
+    a_cust_id    INT NOT NULL,
+    a_branch_id  INT NOT NULL,
+    a_number     VARCHAR(20) UNIQUE NOT NULL,
+    a_type       VARCHAR(20) NOT NULL
+        CHECK (a_type IN ('SAVINGS', 'CURRENT')),
+    a_balance    DECIMAL(10,2) DEFAULT 0
+        CHECK (a_balance >= 0),
+    a_status     VARCHAR(20) DEFAULT 'ACTIVE'
+        CHECK (a_status IN ('ACTIVE', 'FROZEN', 'CLOSED')),
+    a_created    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (a_cust_id) REFERENCES customers(c_id),
+    FOREIGN KEY (a_branch_id) REFERENCES branches(b_id)
 );
 
-CREATE TABLE IF NOT EXISTS beneficiaries (
-    beneficiary_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    customer_id BIGINT NOT NULL REFERENCES customers(customer_id),
-    beneficiary_name VARCHAR(120) NOT NULL,
-    bank_name VARCHAR(120) NOT NULL,
-    account_number VARCHAR(30) NOT NULL,
-    ifsc_code VARCHAR(20) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
-        CHECK (status IN ('PENDING', 'ACTIVE', 'BLOCKED')),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    activated_at TIMESTAMPTZ
+CREATE TABLE beneficiaries (
+    be_id      INT AUTO_INCREMENT PRIMARY KEY,
+    be_cust_id INT NOT NULL,
+    be_name    VARCHAR(100) NOT NULL,
+    be_bank    VARCHAR(100) NOT NULL,
+    be_acc_no  VARCHAR(20) NOT NULL,
+    be_ifsc    VARCHAR(15) NOT NULL,
+    be_status  VARCHAR(20) DEFAULT 'PENDING'
+        CHECK (be_status IN ('PENDING', 'ACTIVE', 'BLOCKED')),
+    be_created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (be_cust_id) REFERENCES customers(c_id)
 );
 
-CREATE TABLE IF NOT EXISTS loans (
-    loan_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    customer_id BIGINT NOT NULL REFERENCES customers(customer_id),
-    loan_type VARCHAR(50) NOT NULL,
-    principal_amount NUMERIC(15,2) NOT NULL CHECK (principal_amount > 0),
-    interest_rate NUMERIC(6,3) NOT NULL CHECK (interest_rate >= 0),
-    tenure_months INTEGER NOT NULL CHECK (tenure_months > 0),
-    emi_amount NUMERIC(15,2) CHECK (emi_amount >= 0),
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
-        CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'ACTIVE', 'CLOSED')),
-    approved_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE loans (
+    l_id       INT AUTO_INCREMENT PRIMARY KEY,
+    l_cust_id  INT NOT NULL,
+    l_type     VARCHAR(50) NOT NULL,
+    l_amount   DECIMAL(10,2) NOT NULL,
+    l_rate     DECIMAL(5,2) NOT NULL,
+    l_months   INT NOT NULL,
+    l_emi      DECIMAL(10,2),
+    l_status   VARCHAR(20) DEFAULT 'PENDING'
+        CHECK (l_status IN ('PENDING', 'APPROVED', 'REJECTED', 'ACTIVE', 'CLOSED')),
+    l_created  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (l_cust_id) REFERENCES customers(c_id)
 );
 
-CREATE TABLE IF NOT EXISTS transactions (
-    transaction_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    account_id BIGINT NOT NULL REFERENCES accounts(account_id),
-    related_account_id BIGINT REFERENCES accounts(account_id),
-    transaction_type VARCHAR(30) NOT NULL
-        CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'LOAN_PAYMENT')),
-    amount NUMERIC(15,2) NOT NULL CHECK (amount > 0),
-    description TEXT,
-    transaction_time TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by BIGINT REFERENCES users(user_id)
+CREATE TABLE transactions (
+    t_id             INT AUTO_INCREMENT PRIMARY KEY,
+    t_acc_id         INT NOT NULL,
+    t_related_acc_id INT,
+    t_type           VARCHAR(20) NOT NULL
+        CHECK (t_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'LOAN_PAYMENT')),
+    t_amount         DECIMAL(10,2) NOT NULL,
+    t_desc           VARCHAR(200),
+    t_time           DATETIME DEFAULT CURRENT_TIMESTAMP,
+    t_by             INT,
+    FOREIGN KEY (t_acc_id) REFERENCES accounts(a_id),
+    FOREIGN KEY (t_related_acc_id) REFERENCES accounts(a_id),
+    FOREIGN KEY (t_by) REFERENCES users(u_id)
 );
 
-CREATE TABLE IF NOT EXISTS audit_logs (
-    audit_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    transaction_id BIGINT REFERENCES transactions(transaction_id),
-    user_id BIGINT REFERENCES users(user_id),
-    action VARCHAR(50) NOT NULL,
-    table_name VARCHAR(100) NOT NULL,
-    record_id BIGINT,
-    details JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE audit_logs (
+    log_id      INT AUTO_INCREMENT PRIMARY KEY,
+    log_txn_id  INT,
+    log_user_id INT,
+    log_action  VARCHAR(50) NOT NULL,
+    log_details VARCHAR(200),
+    log_time    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (log_txn_id) REFERENCES transactions(t_id),
+    FOREIGN KEY (log_user_id) REFERENCES users(u_id)
 );
 
-CREATE TABLE IF NOT EXISTS suspicious_transactions (
-    suspicious_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    transaction_id BIGINT UNIQUE NOT NULL REFERENCES transactions(transaction_id),
-    rule_code VARCHAR(50) NOT NULL,
-    risk_score INTEGER NOT NULL CHECK (risk_score BETWEEN 0 AND 100),
-    reason TEXT NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING'
-        CHECK (status IN ('PENDING', 'REVIEWED', 'CLEARED', 'CONFIRMED')),
-    reviewed_by BIGINT REFERENCES users(user_id),
-    reviewed_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE suspicious_transactions (
+    s_id       INT AUTO_INCREMENT PRIMARY KEY,
+    s_txn_id   INT UNIQUE NOT NULL,
+    s_reason   VARCHAR(200) NOT NULL,
+    s_status   VARCHAR(20) DEFAULT 'PENDING'
+        CHECK (s_status IN ('PENDING', 'REVIEWED', 'CLEARED', 'CONFIRMED')),
+    s_created  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (s_txn_id) REFERENCES transactions(t_id)
 );

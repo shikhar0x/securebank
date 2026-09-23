@@ -1,27 +1,30 @@
--- SecureBank - Database Reset
--- WARNING: Destructive. Use only when intentionally resetting the database.
+-- SecureBank - Database Reset (MySQL)
+-- WARNING: Destructive. Drops every SecureBank object so the numbered
+-- scripts (01-08) can be re-run from a clean state. Run this manually,
+-- never automatically, and only against the securebank database.
 
-DROP VIEW IF EXISTS v_audit_report CASCADE;
-DROP VIEW IF EXISTS v_loan_report CASCADE;
-DROP VIEW IF EXISTS v_branch_summary CASCADE;
-DROP VIEW IF EXISTS v_transaction_history CASCADE;
-DROP VIEW IF EXISTS v_customer_accounts CASCADE;
+USE securebank;
 
-DROP FUNCTION IF EXISTS sp_transfer(BIGINT, BIGINT, NUMERIC) CASCADE;
-DROP FUNCTION IF EXISTS sp_withdraw(BIGINT, NUMERIC) CASCADE;
-DROP FUNCTION IF EXISTS sp_deposit(BIGINT, NUMERIC) CASCADE;
-DROP FUNCTION IF EXISTS fn_calculate_emi(NUMERIC, NUMERIC, INTEGER) CASCADE;
+DROP PROCEDURE IF EXISTS sp_transfer;
+DROP PROCEDURE IF EXISTS sp_withdraw;
+DROP PROCEDURE IF EXISTS sp_deposit;
 
-DROP FUNCTION IF EXISTS fn_prevent_invalid_transaction() CASCADE;
-DROP FUNCTION IF EXISTS fn_transaction_audit() CASCADE;
+DROP TRIGGER IF EXISTS trg_audit_txn;
+DROP TRIGGER IF EXISTS trg_check_txn;
 
-DROP TABLE IF EXISTS suspicious_transactions CASCADE;
-DROP TABLE IF EXISTS audit_logs CASCADE;
-DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS loans CASCADE;
-DROP TABLE IF EXISTS beneficiaries CASCADE;
-DROP TABLE IF EXISTS accounts CASCADE;
-DROP TABLE IF EXISTS branches CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS roles CASCADE;
-DROP TABLE IF EXISTS customers CASCADE;
+DROP VIEW IF EXISTS v_audit_report;
+DROP VIEW IF EXISTS v_loan_report;
+DROP VIEW IF EXISTS v_transaction_history;
+DROP VIEW IF EXISTS v_customer_accounts;
+
+-- Children first, then parents, so foreign keys never block the drop.
+DROP TABLE IF EXISTS suspicious_transactions;
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS loans;
+DROP TABLE IF EXISTS beneficiaries;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS branches;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS customers;

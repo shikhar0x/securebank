@@ -1,85 +1,58 @@
--- SecureBank - Transaction Triggers
+-- SecureBank - Transaction Triggers (MySQL)
+--
+--    trg_check_txn  -> runs BEFORE a new transaction row is saved, makes
+--                       sure the account is real, active and has money.
+--    trg_audit_txn  -> runs AFTER a transaction is saved, writes one
+--                       line into audit_logs so we have a history log.
+--
+--    "NEW.column_name" means "the value being inserted into that column".
+--    DELIMITER $$ just tells the client "don't stop at the first ;
+--    inside this trigger, wait for $$ instead" - triggers have many ;
+--    inside them so the normal ; can't be used to mark the end.
 
-CREATE OR REPLACE FUNCTION fn_transaction_audit()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    INSERT INTO audit_logs (
-        transaction_id,
-        user_id,
-        action,
-        table_name,
-        record_id,
-        details
-    )
-    VALUES (
-        NEW.transaction_id,
-        NEW.created_by,
-        'INSERT',
-        'transactions',
-        NEW.transaction_id,
-        jsonb_build_object(
-            'account_id', NEW.account_id,
-            'related_account_id', NEW.related_account_id,
-            'transaction_type', NEW.transaction_type,
-            'amount', NEW.amount
-        )
-    );
+USE securebank;
 
-    RETURN NEW;
-END;
-$$;
+DELIMITER $$
 
-DROP TRIGGER IF EXISTS trg_transaction_audit ON transactions;
-
-CREATE TRIGGER trg_transaction_audit
-AFTER INSERT ON transactions
-FOR EACH ROW
-EXECUTE FUNCTION fn_transaction_audit();
-
-
-CREATE OR REPLACE FUNCTION fn_prevent_invalid_transaction()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    current_balance NUMERIC(15,2);
-    account_status VARCHAR(20);
-BEGIN
-    SELECT balance, status
-    INTO current_balance, account_status
-    FROM accounts
-    WHERE account_id = NEW.account_id
-    FOR UPDATE;
-
-    IF account_status IS NULL THEN
-        RAISE EXCEPTION 'Account % does not exist', NEW.account_id;
-    END IF;
-
-    IF account_status <> 'ACTIVE' THEN
-        RAISE EXCEPTION 'Account % is not active', NEW.account_id;
-    END IF;
-
-    IF NEW.transaction_type IN ('WITHDRAWAL', 'TRANSFER', 'LOAN_PAYMENT')
-       AND current_balance < NEW.amount THEN
-        RAISE EXCEPTION
-            'Insufficient balance for account %',
-            NEW.account_id;
-    END IF;
-
-    IF NEW.transaction_type = 'TRANSFER'
-       AND NEW.related_account_id IS NULL THEN
-        RAISE EXCEPTION 'Transfer requires a related account';
-    END IF;
-
-    RETURN NEW;
-END;
-$$;
-
-DROP TRIGGER IF EXISTS trg_prevent_invalid_transaction ON transactions;
-
-CREATE TRIGGER trg_prevent_invalid_transaction
+CREATE TRIGGER trg_check_txn
 BEFORE INSERT ON transactions
 FOR EACH ROW
-EXECUTE FUNCTION fn_prevent_invalid_transaction();
+BEGIN
+    DECLARE v_balance DECIMAL(10,2);
+    DECLARE v_status VARCHAR(20);
+
+    SELECT a_balance, a_status INTO v_balance, v_status
+    FROM accounts
+    WHERE a_id = NEW.t_acc_id;
+
+    IF v_status IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Account does not exist';
+    END IF;
+
+    IF v_status <> 'ACTIVE' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Account is not active';
+    END IF;
+
+    IF NEW.t_type IN ('WITHDRAWAL', 'TRANSFER', 'LOAN_PAYMENT') AND v_balance < NEW.t_amount THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insufficient balance';
+    END IF;
+
+    IF NEW.t_type = 'TRANSFER' AND NEW.t_related_acc_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transfer needs a related account';
+    END IF;
+END$$
+
+CREATE TRIGGER trg_audit_txn
+AFTER INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    INSERT INTO audit_logs (log_txn_id, log_user_id, log_action, log_details)
+    VALUES (
+        NEW.t_id,
+        NEW.t_by,
+        'INSERT',
+        CONCAT(NEW.t_type, ' of amount ', NEW.t_amount, ' on account ', NEW.t_acc_id)
+    );
+END$$
+
+DELIMITER ;

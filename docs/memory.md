@@ -7,7 +7,7 @@
 **Project:** SecureBank
 **Purpose:** DBMS Innovative Examination
 **Team:** 12 second-year Computer Engineering students
-**Database:** PostgreSQL hosted through Supabase
+**Database:** MySQL
 **Backend:** Python + Flask
 **Frontend:** HTML/CSS/JavaScript + Bootstrap or agreed equivalent
 **Architecture:** Modular monorepo
@@ -16,11 +16,17 @@ SecureBank is an academic banking simulation and does not process real money.
 
 ## 2. Current Status
 
-**Phase:** Phase 0 — Project Freeze and Setup
+**Phase:** Phase 1 — ER Model and Database Foundation
 
-Repository and planning documents are initialized.
+Repository and planning documents are initialized. The core MySQL schema,
+seed data, views, triggers and stored procedures have been written
+(`database/securebank_mysql.sql` and the numbered `database/00_*.sql`
+through `database/08_*.sql` scripts), but have not yet been executed
+against a live MySQL server or verified end-to-end — treat them as
+unverified until run.
 
-**Immediate next step:** Finalize the compact ER model and PostgreSQL/Supabase schema.
+**Immediate next step:** Run the schema against a real MySQL instance,
+verify `database/tests/*.sql`, and start wiring the Flask backend to it.
 
 ## 3. Technology Decision
 
@@ -29,12 +35,8 @@ Frontend
    ↓
 Flask Backend
    ↓
-PostgreSQL
-   ↓
-Supabase
+MySQL
 ```
-
-Supabase is the platform/hosting layer. PostgreSQL is the DBMS.
 
 ## 4. Authoritative Documents
 
@@ -81,25 +83,24 @@ Views, triggers, functions/procedures, constraints and privileges are features r
 - REVOKE
 - Views
 - Triggers
-- PostgreSQL functions/procedures
+- MySQL stored procedures
 - Transactions
 - COMMIT
 - ROLLBACK
 - Audit logging
 
-## 7. Planned Views
+## 7. Implemented Views
 
 ```text
 v_customer_accounts
 v_transaction_history
-v_branch_summary
-v_loan_portfolio
-v_audit_activity
+v_loan_report
+v_audit_report
 ```
 
 Only required views should be implemented.
 
-## 8. Planned Banking Functions
+## 8. Implemented Banking Procedures
 
 ```text
 sp_deposit
@@ -107,14 +108,15 @@ sp_withdraw
 sp_transfer
 ```
 
-Loan-specific functions may be added if required.
+Loan-specific procedures may be added if required.
 
-## 9. Planned Trigger Responsibilities
+## 9. Trigger Responsibilities
 
-1. Transaction audit.
-2. Account/transaction validation.
-3. Protection of inactive/closed accounts.
-4. Relevant suspicious-transaction recording.
+1. Transaction audit — implemented (`trg_audit_txn`).
+2. Account/transaction validation — implemented (`trg_check_txn`), also
+   covers protection of inactive/closed accounts.
+3. Suspicious-transaction recording — not automated; `suspicious_transactions`
+   rows are inserted by application/compliance logic, not a trigger.
 
 ## 10. Team Ownership
 
@@ -191,9 +193,12 @@ Database order:
 database/tests/*
 ```
 
+`database/securebank_mysql.sql` holds the same schema as one consolidated
+file, for a quick single-script run in MySQL Workbench.
+
 ## 13. Important Current Decisions
 
-- Supabase/PostgreSQL is final.
+- MySQL is final.
 - Database remains compact.
 - No artificial tables just for member ownership.
 - Database member owns final ER/schema integration.
@@ -212,22 +217,23 @@ database/tests/*
 - [x] 11-page report constraint
 - [x] Research requirements
 - [x] Monorepo architecture
-- [x] PostgreSQL/Supabase selection
+- [x] MySQL selection
 - [x] Compact core database model
 - [x] Development rules
 
 ### Database
 
-- [ ] Final ER model
-- [ ] Final schema
+- [x] Final ER model (10 core tables, see section 5)
+- [x] Final schema (`database/securebank_mysql.sql`, `database/01_schema.sql`)
+- [x] Constraints (`database/02_constraints.sql`)
+- [x] Seed data (`database/03_seed_data.sql`, `database/08_test_data.sql`)
+- [x] Views (`database/05_views.sql`)
+- [x] Triggers (`database/06_triggers.sql`)
+- [x] Stored procedures (`database/07_procedures.sql`)
+- [x] Test SQL written (`database/tests/*.sql`)
+- [ ] Roles/privileges actually granted on a live server (`04_roles.sql` is still an example)
 - [ ] Normalization review
-- [ ] Constraints
-- [ ] Seed data
-- [ ] Roles/privileges
-- [ ] Views
-- [ ] Triggers
-- [ ] Functions/procedures
-- [ ] Tests
+- [ ] Schema/tests executed and verified against a running MySQL instance
 
 ### Backend
 
@@ -262,19 +268,14 @@ database/tests/*
 
 ## 15. Immediate Next Actions
 
-1. Finalize compact ER model.
-2. Agree on exact attributes for the 10 core tables.
-3. Database member creates the schema in Supabase.
-4. Retain the agreed PostgreSQL SQL.
-5. Implement constraints.
-6. Add seed/demo data.
-7. Implement roles/privileges.
-8. Implement views.
-9. Implement triggers.
-10. Implement banking functions.
-11. Connect Flask backend.
-12. Integrate frontend.
-13. Run complete test matrix.
+1. Run `database/securebank_mysql.sql` (or `00_reset.sql` through
+   `08_test_data.sql` in order) against a real MySQL server.
+2. Run `database/tests/*.sql` and verify the results.
+3. Implement roles/privileges from `04_roles.sql` on the actual server.
+4. Connect the Flask backend to MySQL.
+5. Integrate frontend.
+6. Run the complete test matrix (RBAC, constraints, triggers, transactions,
+   views, API, end-to-end demo).
 
 ## 16. AI Continuation Protocol
 
@@ -289,4 +290,4 @@ When starting a new session:
 7. Update `memory.md`.
 8. Report exactly what changed and what remains.
 
-Never treat this file as proof that an implementation exists. Verify the actual repository and Supabase database.
+Never treat this file as proof that an implementation exists. Verify the actual repository and MySQL database.

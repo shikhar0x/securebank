@@ -1,70 +1,30 @@
--- SecureBank - Reporting Views
+-- SecureBank - Reporting Views (MySQL)
+
+USE securebank;
 
 CREATE OR REPLACE VIEW v_customer_accounts AS
 SELECT
-    c.customer_id,
-    c.full_name,
-    c.email,
-    a.account_id,
-    a.account_number,
-    a.account_type,
-    a.balance,
-    a.status,
-    b.branch_name,
-    b.city
+    c.c_id, c.c_name, c.c_email,
+    a.a_id, a.a_number, a.a_type, a.a_balance, a.a_status,
+    b.b_name, b.b_city
 FROM customers c
-JOIN accounts a ON a.customer_id = c.customer_id
-JOIN branches b ON b.branch_id = a.branch_id;
+JOIN accounts a ON a.a_cust_id = c.c_id
+JOIN branches b ON b.b_id = a.a_branch_id;
 
 CREATE OR REPLACE VIEW v_transaction_history AS
 SELECT
-    t.transaction_id,
-    t.account_id,
-    a.account_number,
-    t.related_account_id,
-    t.transaction_type,
-    t.amount,
-    t.description,
-    t.transaction_time,
-    t.created_by
+    t.t_id, t.t_acc_id, a.a_number,
+    t.t_related_acc_id, t.t_type, t.t_amount, t.t_desc, t.t_time, t.t_by
 FROM transactions t
-JOIN accounts a ON a.account_id = t.account_id;
-
-CREATE OR REPLACE VIEW v_branch_summary AS
-SELECT
-    b.branch_id,
-    b.branch_code,
-    b.branch_name,
-    b.city,
-    COUNT(a.account_id) AS total_accounts,
-    COALESCE(SUM(a.balance), 0) AS total_balance
-FROM branches b
-LEFT JOIN accounts a ON a.branch_id = b.branch_id
-GROUP BY b.branch_id, b.branch_code, b.branch_name, b.city;
+JOIN accounts a ON a.a_id = t.t_acc_id;
 
 CREATE OR REPLACE VIEW v_loan_report AS
 SELECT
-    l.loan_id,
-    l.customer_id,
-    c.full_name,
-    l.loan_type,
-    l.principal_amount,
-    l.interest_rate,
-    l.tenure_months,
-    l.emi_amount,
-    l.status,
-    l.created_at
+    l.l_id, l.l_cust_id, c.c_name,
+    l.l_type, l.l_amount, l.l_rate, l.l_months, l.l_emi, l.l_status, l.l_created
 FROM loans l
-JOIN customers c ON c.customer_id = l.customer_id;
+JOIN customers c ON c.c_id = l.l_cust_id;
 
 CREATE OR REPLACE VIEW v_audit_report AS
-SELECT
-    al.audit_id,
-    al.transaction_id,
-    al.user_id,
-    al.action,
-    al.table_name,
-    al.record_id,
-    al.details,
-    al.created_at
-FROM audit_logs al;
+SELECT log_id, log_txn_id, log_user_id, log_action, log_details, log_time
+FROM audit_logs;

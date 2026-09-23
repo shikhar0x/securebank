@@ -15,12 +15,10 @@ Verify actual code/database state when documentation and implementation disagree
 ## 2. Database Platform
 
 ```text
-PostgreSQL
-    ↓
-Supabase
+MySQL
 ```
 
-PostgreSQL is the DBMS. Do not use MySQL-specific syntax.
+MySQL is the DBMS. Do not use PostgreSQL-specific syntax.
 
 ## 3. Scope Rule
 
@@ -106,7 +104,11 @@ docs: update architecture
 
 ## 7. Database Rules
 
-Use `snake_case`, descriptive names and consistent table naming.
+Use `snake_case` table names, plural for entity tables.
+
+Column names use a short table-prefix + name convention (see the header
+of `database/securebank_mysql.sql` for the full prefix list), e.g.
+`c_name`, `a_balance`, `t_type`. Keep it consistent across all tables.
 
 Every major entity has a primary key.
 
@@ -123,16 +125,16 @@ Prefer:
 For money use:
 
 ```sql
-NUMERIC(15,2)
+DECIMAL(10,2)
 ```
 
 ## 8. RBAC Rules
 
-Application roles and PostgreSQL privileges are related but distinct.
+Application roles and MySQL privileges are related but distinct.
 
 Application roles are part of the project model.
 
-PostgreSQL `GRANT`/`REVOKE` demonstrates database authorization.
+MySQL `GRANT`/`REVOKE` demonstrates database authorization.
 
 Frontend visibility is never the only security mechanism.
 
@@ -184,7 +186,7 @@ Ordinary operational users must not freely alter audit history.
 - Use parameterized SQL.
 - Validate input.
 - Enforce authorization server-side.
-- Never expose the Supabase service-role key to frontend code.
+- Never expose database credentials to frontend code.
 
 ## 12. Extension Rules
 
@@ -210,7 +212,7 @@ Members own modules but share the agreed schema and API contracts.
 
 Do not independently redesign shared tables.
 
-The database member maintains the final Supabase schema/ER model.
+The database member maintains the final MySQL schema/ER model.
 
 The backend owner integrates the database with Flask.
 

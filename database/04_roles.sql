@@ -1,17 +1,26 @@
--- SecureBank - RBAC
--- Review these statements against the Supabase project before execution.
--- Supabase-managed roles/permissions should not be modified blindly.
+-- SecureBank - RBAC (MySQL)
+-- These CREATE ROLE / GRANT statements demonstrate database-level
+-- authorization (member 6's extension). They need a MySQL account with
+-- the CREATE ROLE / GRANT privilege, so review them against the target
+-- MySQL server before running - do not run blindly against a shared or
+-- managed instance.
 
 -- Example:
 --
--- CREATE ROLE teller_role;
--- GRANT USAGE ON SCHEMA public TO teller_role;
+-- CREATE ROLE IF NOT EXISTS 'teller_role';
+-- GRANT SELECT, INSERT ON securebank.transactions TO 'teller_role';
+-- GRANT SELECT ON securebank.accounts TO 'teller_role';
 --
--- GRANT SELECT, INSERT ON public.transactions TO teller_role;
--- GRANT SELECT ON public.accounts TO teller_role;
+-- REVOKE UPDATE, DELETE ON securebank.audit_logs FROM 'teller_role';
 --
--- REVOKE UPDATE, DELETE ON public.audit_logs FROM teller_role;
+-- GRANT EXECUTE ON PROCEDURE securebank.sp_deposit TO 'teller_role';
+-- GRANT EXECUTE ON PROCEDURE securebank.sp_withdraw TO 'teller_role';
+-- GRANT EXECUTE ON PROCEDURE securebank.sp_transfer TO 'teller_role';
 --
--- GRANT EXECUTE ON FUNCTION sp_deposit(BIGINT, NUMERIC) TO teller_role;
--- GRANT EXECUTE ON FUNCTION sp_withdraw(BIGINT, NUMERIC) TO teller_role;
--- GRANT EXECUTE ON FUNCTION sp_transfer(BIGINT, BIGINT, NUMERIC) TO teller_role;
+-- CREATE ROLE IF NOT EXISTS 'auditor_role';
+-- GRANT SELECT ON securebank.audit_logs TO 'auditor_role';
+-- GRANT SELECT ON securebank.v_transaction_history TO 'auditor_role';
+--
+-- -- Attach a role to a MySQL user and make it active by default:
+-- -- GRANT 'teller_role' TO 'some_mysql_user'@'%';
+-- -- SET DEFAULT ROLE 'teller_role' TO 'some_mysql_user'@'%';
