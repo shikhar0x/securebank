@@ -24,8 +24,8 @@ def test_health_check(client):
 
 
 def test_root_endpoint(client):
-    """Test root endpoint returns welcome message."""
-    response = client.get("/")
+    """Test root endpoint returns welcome message or frontend HTML."""
+    response = client.get("/?format=json")
     assert response.status_code == 200
     json_data = response.get_json()
     assert json_data["success"] is True

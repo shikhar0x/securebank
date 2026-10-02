@@ -1,0 +1,246 @@
+/* SecureBank Modern Banking Dashboard Theme */
+:root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #ffffff;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --brand-primary: #2563eb;
+    --brand-hover: #1d4ed8;
+    --brand-dark: #1e3a8a;
+    --success: #059669;
+    --success-bg: #d1fae5;
+    --warning: #d97706;
+    --warning-bg: #fef3c7;
+    --danger: #dc2626;
+    --danger-bg: #fee2e2;
+    --info: #0284c7;
+    --info-bg: #e0f2fe;
+    --border-color: #e2e8f0;
+    --sidebar-width: 260px;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f8fafc;
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+/* Sidebar Layout */
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: var(--sidebar-width);
+    background-color: var(--bg-primary);
+    color: #f8fafc;
+    transition: margin 0.25s ease-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.sidebar-heading {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-heading i {
+    color: #60a5fa;
+}
+
+.list-group-item-sidebar {
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    padding: 0.85rem 1.5rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.list-group-item-sidebar:hover, 
+.list-group-item-sidebar.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-left: 4px solid #3b82f6;
+}
+
+.list-group-item-sidebar i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content Wrapper */
+#page-content-wrapper {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.navbar-top {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    padding: 0.75rem 1.75rem;
+}
+
+/* Viva Persona Switcher */
+.persona-btn {
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.persona-btn:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.role-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-CUSTOMER { background-color: #e0f2fe; color: #0369a1; }
+.role-TELLER { background-color: #fef3c7; color: #b45309; }
+.role-LOAN_OFFICER { background-color: #fae8ff; color: #86198f; }
+.role-MANAGER { background-color: #dcfce7; color: #15803d; }
+.role-AUDITOR { background-color: #f1f5f9; color: #475569; }
+.role-COMPLIANCE { background-color: #ffe4e6; color: #be123c; }
+.role-ADMIN { background-color: #e0e7ff; color: #4338ca; }
+
+/* Cards & Widgets */
+.stat-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+/* Tables */
+.table-custom {
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.table-custom thead {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-custom th {
+    padding: 0.9rem 1.25rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-custom td {
+    padding: 0.9rem 1.25rem;
+    vertical-align: middle;
+    color: #334155;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Status Badges */
+.badge-status {
+    padding: 0.35em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.status-ACTIVE, .status-CLEARED, .status-APPROVED, .status-VERIFIED {
+    background-color: var(--success-bg);
+    color: var(--success);
+}
+
+.status-PENDING, .status-REVIEWED {
+    background-color: var(--warning-bg);
+    color: var(--warning);
+}
+
+.status-FROZEN, .status-CLOSED, .status-CONFIRMED, .status-REJECTED, .status-BLOCKED {
+    background-color: var(--danger-bg);
+    color: var(--danger);
+}
+
+/* Alert Banners & Rollback Visualizer */
+.rollback-banner {
+    background-color: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.rollback-banner h6 {
+    color: #991b1b;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.rollback-banner p {
+    color: #b91c1c;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Responsive adjust */
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: -var(--sidebar-width);
+    }
+    #sidebar-wrapper.toggled {
+        margin-left: 0;
+    }
+    #page-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+}

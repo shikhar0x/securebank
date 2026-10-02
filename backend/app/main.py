@@ -33,7 +33,8 @@ logger = logging.getLogger("securebank")
 
 def create_app(config_class: type[Config] = None) -> Flask:
     """Application factory for SecureBank."""
-    app = Flask(__name__)
+    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend"))
+    app = Flask(__name__, static_folder=frontend_dir, static_url_path="")
 
     if config_class is None:
         config_class = get_config()
@@ -64,7 +65,20 @@ def create_app(config_class: type[Config] = None) -> Flask:
     # Root Endpoint
     @app.route("/", methods=["GET"])
     def root():
-        """Root welcome endpoint."""
+        """Serve frontend SPA or API welcome message."""
+        from flask import request
+        if request.args.get("format") == "json":
+            return success_response({
+                "message": "Welcome to SecureBank Backend API",
+                "documentation": "/docs",
+                "health": "/api/health"
+            }, status_code=200)
+
+        index_file = os.path.join(frontend_dir, "index.html")
+        if os.path.exists(index_file):
+            from flask import send_from_directory
+            return send_from_directory(frontend_dir, "index.html")
+
         return success_response({
             "message": "Welcome to SecureBank Backend API",
             "documentation": "/docs",
