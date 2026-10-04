@@ -1,0 +1,9 @@
+{
+  "name": "securebank-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static frontend served by the SecureBank Flask application",
+  "scripts": {
+    "check": "node --check js/api.js && node --check js/app.js"
+  }
+}

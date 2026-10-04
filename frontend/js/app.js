@@ -133,7 +133,7 @@ function renderSidebar() {
         { id: 'accounts', icon: 'fa-building-columns', label: 'Bank Accounts', roles: ['TELLER', 'MANAGER', 'ADMIN', 'AUDITOR', 'COMPLIANCE'] },
         { id: 'customers', icon: 'fa-users', label: 'Customer Directory', roles: ['TELLER', 'MANAGER', 'ADMIN', 'AUDITOR', 'COMPLIANCE'] },
         { id: 'transactions', icon: 'fa-money-bill-transfer', label: 'Transactions', roles: ['CUSTOMER', 'TELLER', 'MANAGER', 'ADMIN', 'AUDITOR', 'COMPLIANCE'] },
-        { id: 'beneficiaries', icon: 'fa-address-book', label: 'Beneficiaries', roles: ['CUSTOMER', 'TELLER', 'MANAGER', 'ADMIN'] },
+        { id: 'beneficiaries', icon: 'fa-address-book', label: 'Beneficiaries', roles: ['CUSTOMER'] },
         { id: 'loans', icon: 'fa-hand-holding-dollar', label: 'Loan Management', roles: ['CUSTOMER', 'LOAN_OFFICER', 'MANAGER', 'ADMIN', 'AUDITOR'] },
         { id: 'compliance', icon: 'fa-shield-halved', label: 'Suspicious Activity', roles: ['COMPLIANCE', 'MANAGER', 'ADMIN', 'AUDITOR'] },
         { id: 'audit', icon: 'fa-file-shield', label: 'Audit Trail Logs', roles: ['AUDITOR', 'COMPLIANCE', 'MANAGER', 'ADMIN'] },
@@ -567,8 +567,7 @@ async function renderComplianceDashboard(container) {
                                     <td><span class="badge-status status-${r.st_status}">${r.st_status}</span></td>
                                     <td>
                                         ${r.st_status === 'PENDING' ? `
-                                            <button class="btn btn-sm btn-outline-success me-1" onclick="reviewSuspicious(${r.st_id}, 'CLEARED')">Clear</button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="reviewSuspicious(${r.st_id}, 'CONFIRMED')">Confirm Risk</button>
+                                            ${['ADMIN', 'COMPLIANCE'].includes(AppState.user.role) ? `<button class="btn btn-sm btn-outline-success me-1" onclick="reviewSuspicious(${r.st_id}, 'CLEARED')">Clear</button><button class="btn btn-sm btn-outline-danger" onclick="reviewSuspicious(${r.st_id}, 'CONFIRMED')">Confirm Risk</button>` : '<span class="text-muted small">Review restricted</span>'}
                                         ` : '<span class="text-muted small">Reviewed</span>'}
                                     </td>
                                 </tr>
@@ -775,7 +774,7 @@ async function renderTransactionsView(container) {
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold m-0"><i class="fa-solid fa-money-bill-transfer text-primary me-2"></i>Transaction Ledger</h5>
                 <div class="d-flex gap-2">
-                    <input type="number" id="txn-lookup-account-id" class="form-control form-control-sm" placeholder="Enter Account ID" value="${AppState.user.customer_id ? '101' : '101'}">
+                    ${AppState.user.role === 'CUSTOMER' ? '<select id="txn-lookup-account-id" class="form-select form-select-sm"></select>' : '<input type="number" id="txn-lookup-account-id" class="form-control form-control-sm" placeholder="Enter Account ID">'}
                     <button class="btn btn-primary btn-sm" onclick="fetchAccountTransactions()">Fetch Ledger</button>
                 </div>
             </div>
@@ -784,7 +783,17 @@ async function renderTransactionsView(container) {
             </div>
         </div>
     `;
-    fetchAccountTransactions();
+    if (AppState.user.role === 'CUSTOMER') {
+        try {
+            const accounts = await api.getCustomerAccounts(AppState.user.customer_id);
+            const select = document.getElementById('txn-lookup-account-id');
+            select.innerHTML = accounts.map(a => `<option value="${a.a_id}">${a.a_type} · #${a.a_id}</option>`).join('');
+            if (accounts.length) fetchAccountTransactions();
+            else document.getElementById('transactions-table-container').innerHTML = '<p class="text-muted">No accounts are linked to this customer.</p>';
+        } catch (err) {
+            document.getElementById('transactions-table-container').innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+        }
+    }
 }
 
 async function fetchAccountTransactions() {
@@ -828,7 +837,11 @@ async function fetchAccountTransactions() {
 
 // BENEFICIARIES VIEW (Single Bank Company - SecureBank)
 async function renderBeneficiariesView(container) {
-    const custId = AppState.user.customer_id || 1;
+    const custId = AppState.user.customer_id;
+    if (!custId) {
+        container.innerHTML = '<div class="alert alert-warning">Beneficiaries are only available for a customer session.</div>';
+        return;
+    }
     try {
         const list = await api.getBeneficiaries(custId);
 
@@ -891,9 +904,7 @@ async function renderLoansView(container) {
             <div class="card border-0 shadow-sm rounded-3 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold m-0"><i class="fa-solid fa-hand-holding-dollar text-primary me-2"></i>Loan Applications</h5>
-                    <button class="btn btn-primary btn-sm" onclick="openApplyLoanModal()">
-                        <i class="fa-solid fa-plus me-1"></i>Apply For Loan
-                    </button>
+                    ${role === 'CUSTOMER' || ['ADMIN', 'MANAGER', 'LOAN_OFFICER'].includes(role) ? '<button class="btn btn-primary btn-sm" onclick="openApplyLoanModal()"><i class="fa-solid fa-plus me-1"></i>Apply For Loan</button>' : ''}
                 </div>
 
                 <div class="table-responsive">
@@ -1069,6 +1080,101 @@ async function loadReport(viewType) {
 // Modals & Handlers
 // -------------------------------------------------------------
 
+function openDataForm(title, fields, submitLabel, onSubmit) {
+    let modalEl = document.getElementById('dataEntryModal');
+    if (!modalEl) {
+        document.body.insertAdjacentHTML('beforeend', '<div class="modal fade" id="dataEntryModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow"><form id="data-entry-form"><div class="modal-header"><h5 class="modal-title"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"></div><div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"></button></div></form></div></div></div>');
+        modalEl = document.getElementById('dataEntryModal');
+    }
+    modalEl.querySelector('.modal-title').textContent = title;
+    modalEl.querySelector('.modal-footer .btn-primary').textContent = submitLabel;
+    modalEl.querySelector('.modal-body').innerHTML = fields.map(field => `
+        <div class="mb-3">
+            <label class="form-label" for="entry-${field.name}">${field.label}</label>
+            ${field.options ? `<select class="form-select" id="entry-${field.name}" name="${field.name}" ${field.required === false ? '' : 'required'}>${field.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>` : `<input class="form-control" id="entry-${field.name}" name="${field.name}" type="${field.type || 'text'}" ${field.step ? `step="${field.step}"` : ''} ${field.min !== undefined ? `min="${field.min}"` : ''} ${field.required === false ? '' : 'required'} ${field.value !== undefined ? `value="${field.value}"` : ''}>`}
+        </div>`).join('');
+    const form = modalEl.querySelector('form');
+    form.onsubmit = async event => {
+        event.preventDefault();
+        const submit = form.querySelector('[type="submit"]');
+        submit.disabled = true;
+        try {
+            const values = Object.fromEntries(new FormData(form).entries());
+            await onSubmit(values);
+            bootstrap.Modal.getInstance(modalEl).hide();
+        } catch (err) {
+            showToast('Request Failed', err.message, 'danger');
+        } finally {
+            submit.disabled = false;
+        }
+    };
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
+function openNewCustomerModal() {
+    openDataForm('Register Customer', [
+        { name: 'full_name', label: 'Full name' }, { name: 'email', label: 'Email', type: 'email' },
+        { name: 'phone', label: 'Phone' }, { name: 'address', label: 'Address', required: false },
+        { name: 'date_of_birth', label: 'Date of birth', type: 'date', required: false }
+    ], 'Create Customer', async data => {
+        await api.createCustomer(data);
+        showToast('Customer Created', 'Customer record was saved.', 'success');
+        navigateTo('customers');
+    });
+}
+
+function openNewAccountModal() {
+    openDataForm('Open Account', [
+        { name: 'customer_id', label: 'Customer ID', type: 'number', min: 1 },
+        { name: 'branch_id', label: 'Branch ID', type: 'number', min: 1, value: 1 },
+        { name: 'account_type', label: 'Account type', options: [{ value: 'SAVINGS', label: 'Savings' }, { value: 'CURRENT', label: 'Current' }] },
+        { name: 'initial_deposit', label: 'Initial deposit (₹)', type: 'number', min: 0, step: '0.01', value: 0 }
+    ], 'Open Account', async data => {
+        await api.openAccount(data);
+        showToast('Account Opened', 'Account record was saved.', 'success');
+        navigateTo('accounts');
+    });
+}
+
+function openApplyLoanModal() {
+    const fields = AppState.user.role === 'CUSTOMER' ? [] : [{ name: 'customer_id', label: 'Customer ID', type: 'number', min: 1 }];
+    fields.push(
+        { name: 'loan_type', label: 'Loan type', options: [{ value: 'PERSONAL', label: 'Personal' }, { value: 'HOME', label: 'Home' }, { value: 'AUTO', label: 'Auto' }, { value: 'EDUCATION', label: 'Education' }] },
+        { name: 'principal_amount', label: 'Principal (₹)', type: 'number', min: '0.01', step: '0.01' },
+        { name: 'interest_rate', label: 'Annual interest rate (%)', type: 'number', min: 0, step: '0.01' },
+        { name: 'tenure_months', label: 'Tenure (months)', type: 'number', min: 1 }
+    );
+    openDataForm('Apply for Loan', fields, 'Submit Application', async data => {
+        if (AppState.user.role === 'CUSTOMER') data.customer_id = AppState.user.customer_id;
+        await api.applyLoan(data);
+        showToast('Application Submitted', 'Loan application was saved.', 'success');
+        navigateTo('loans');
+    });
+}
+
+function openAddBeneficiaryModal() {
+    openDataForm('Add Beneficiary', [
+        { name: 'beneficiary_name', label: 'Name' }, { name: 'bank_name', label: 'Bank name' },
+        { name: 'account_number', label: 'Account number' }, { name: 'ifsc_code', label: 'IFSC code' }
+    ], 'Add Beneficiary', async data => {
+        await api.createBeneficiary(AppState.user.customer_id, data);
+        showToast('Beneficiary Added', 'Beneficiary is pending verification.', 'success');
+        navigateTo('beneficiaries');
+    });
+}
+
+async function viewAccountTransactions(accountId) {
+    const container = document.getElementById('customer-recent-transactions');
+    if (!container) return;
+    container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>';
+    try {
+        const rows = await api.getAccountTransactions(accountId, 10, 0);
+        container.innerHTML = rows.length ? `<table class="table table-sm"><thead><tr><th>ID</th><th>Time</th><th>Type</th><th>Amount</th></tr></thead><tbody>${rows.map(t => `<tr><td>#${t.t_id}</td><td>${new Date(t.t_time).toLocaleString()}</td><td>${t.t_type}</td><td>${formatINR(t.t_amount)}</td></tr>`).join('')}</tbody></table>` : '<p class="text-muted">No transactions for this account.</p>';
+    } catch (err) {
+        container.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+    }
+}
+
 function openTransferModal() {
     const modalEl = document.getElementById('transferModal');
     const bsModal = new bootstrap.Modal(modalEl);
@@ -1123,6 +1229,7 @@ async function changeAccountStatus(accountId, newStatus) {
     try {
         await api.updateAccountStatus(accountId, newStatus);
         showToast('Account Updated', `Account #${accountId} status changed to ${newStatus}`, 'success');
+        navigateTo('accounts');
     } catch (err) {
         showToast('Update Failed', err.message, 'danger');
     }
@@ -1186,5 +1293,17 @@ function showRollbackAlert(message) {
     container.insertAdjacentHTML('afterbegin', alertHtml);
 }
 
-function showLoading(show) {}
-function setupEventListeners() {}
+function showLoading(show) {
+    let indicator = document.getElementById('api-loading-indicator');
+    if (show && !indicator) {
+        document.body.insertAdjacentHTML('beforeend', '<div id="api-loading-indicator" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="z-index:2000;background:rgba(255,255,255,.65)"><div class="spinner-border text-primary" role="status" aria-label="Loading"></div></div>');
+        indicator = document.getElementById('api-loading-indicator');
+    }
+    if (indicator) indicator.classList.toggle('d-none', !show);
+}
+function setupEventListeners() {
+    document.addEventListener('click', event => {
+        const link = event.target.closest('a[href="#"]');
+        if (link) event.preventDefault();
+    });
+}
