@@ -15,22 +15,13 @@
 
 | Layer | Technology |
 |---|---|
-<<<<<<< HEAD
-| Database | MySQL |
-| Backend | Python + Flask |
-=======
 | Database | MySQL 8.0+ |
 | Backend | Python + Flask + mysql-connector-python |
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 | Frontend | HTML/CSS/JavaScript + Bootstrap or agreed equivalent |
 | Version Control | Git + GitHub |
 | Diagrams | draw.io / Figma |
 
-<<<<<<< HEAD
-MySQL is the relational DBMS, run locally or on any standard MySQL server (e.g. via MySQL Workbench).
-=======
 MySQL 8.0+ is the relational DBMS.
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 
 ## 3. Repository Structure
 
@@ -85,13 +76,8 @@ securebank/
 Frontend
    ↓ HTTP/JSON
 Flask Backend
-<<<<<<< HEAD
-   ↓ SQL / Procedures
-MySQL
-=======
    ↓ SQL / Procedures / Functions
 MySQL 8.0+
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
    ├── Tables / Constraints
    ├── Roles / Privileges
    ├── Views
@@ -195,20 +181,9 @@ suspicious_transactions
 database/tests/*
 ```
 
-<<<<<<< HEAD
-`database/securebank_mysql.sql` is the same schema as a single consolidated
-file, meant for a quick "open and execute" run in MySQL Workbench. The
-numbered scripts above are the modular, step-by-step equivalent used for
-development and review.
-
-## 9. MySQL Rule
-
-The project must visibly demonstrate MySQL:
-=======
 ## 9. DBMS Implementation
 
 The project must visibly demonstrate MySQL 8.0+:
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 
 - DDL
 - DML
@@ -231,11 +206,7 @@ Flask transaction endpoint
    ↓
 Validate request
    ↓
-<<<<<<< HEAD
-MySQL transaction/procedure
-=======
 MySQL transaction / stored procedure
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
    ↓
 Debit source
    ↓

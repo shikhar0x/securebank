@@ -7,13 +7,8 @@
 **Project:** SecureBank
 **Purpose:** DBMS Innovative Examination
 **Team:** 12 second-year Computer Engineering students
-<<<<<<< HEAD
-**Database:** MySQL
-**Backend:** Python + Flask
-=======
 **Database:** MySQL 8.0+
 **Backend:** Python + Flask + mysql-connector-python
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 **Frontend:** HTML/CSS/JavaScript + Bootstrap or agreed equivalent
 **Architecture:** Modular monorepo
 
@@ -21,24 +16,10 @@ SecureBank is an academic banking simulation and does not process real money.
 
 ## 2. Current Status
 
-<<<<<<< HEAD
-**Phase:** Phase 1 — ER Model and Database Foundation
-
-Repository and planning documents are initialized. The core MySQL schema,
-seed data, views, triggers and stored procedures have been written
-(`database/securebank_mysql.sql` and the numbered `database/00_*.sql`
-through `database/08_*.sql` scripts), but have not yet been executed
-against a live MySQL server or verified end-to-end — treat them as
-unverified until run.
-
-**Immediate next step:** Run the schema against a real MySQL instance,
-verify `database/tests/*.sql`, and start wiring the Flask backend to it.
-=======
 **Phase:** Phase 3 — Backend API Development (Complete)
 
 Repository and planning documents are updated.
 Backend implementation in Flask with MySQL 8.0+ connector is complete.
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 
 ## 3. Technology Decision
 
@@ -47,17 +28,11 @@ Frontend
    ↓
 Flask Backend
    ↓
-<<<<<<< HEAD
-MySQL
-```
-
-=======
 MySQL 8.0+
 ```
 
 MySQL 8.0+ is the relational DBMS.
 
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 ## 4. Authoritative Documents
 
 ```text
@@ -103,11 +78,7 @@ Views, triggers, functions/procedures, constraints and privileges are features r
 - REVOKE
 - Views
 - Triggers
-<<<<<<< HEAD
-- MySQL stored procedures
-=======
 - MySQL functions/procedures
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 - Transactions
 - COMMIT
 - ROLLBACK

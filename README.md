@@ -10,11 +10,7 @@ The project demonstrates core DBMS concepts taught in the curriculum and extends
 
 ## Technology Stack
 
-<<<<<<< HEAD
-- MySQL
-=======
 - MySQL 8.0+
->>>>>>> b44714e3d670951e57d072f2081c1ef2c89f2e8e
 - Python
 - Flask
 - mysql-connector-python
