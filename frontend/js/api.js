@@ -1,6 +1,13 @@
 /**
  * SecureBank REST API Client
  * Wraps native fetch with session cookie management and error normalization.
+ *
+ * Backend response contract (backend/app/security/utils.py):
+ *   success -> HTTP 2xx      {"success": true,  "data": ...}
+ *   failure -> HTTP 4xx/5xx  {"success": false, "error": "...", "code": "..."}
+ *
+ * A 2xx body that carries "success": false is also treated as a failure, so a
+ * caller can never mistake a rejected operation for a committed one.
  */
 
 const API_BASE = '/api';
@@ -8,13 +15,17 @@ const API_BASE = '/api';
 class ApiClient {
     async request(endpoint, options = {}) {
         const url = `${API_BASE}${endpoint}`;
+
+        // Caller headers are merged INTO the default headers instead of
+        // replacing them, so Content-Type is never lost.
+        const { headers: extraHeaders, ...requestOptions } = options;
         const config = {
+            credentials: 'include', // Ensures Flask session cookies are sent/saved
+            ...requestOptions,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers
-            },
-            credentials: 'include', // Ensures Flask session cookies are sent/saved
-            ...options
+                ...extraHeaders
+            }
         };
 
         if (config.body && typeof config.body === 'object') {
@@ -25,7 +36,9 @@ class ApiClient {
             const response = await fetch(url, config);
             const data = await response.json().catch(() => ({}));
 
-            if (!response.ok) {
+            // Non-2xx OR an explicit failure flag in the body: surface the
+            // backend's own message instead of swallowing it.
+            if (!response.ok || data.success === false) {
                 const error = new Error(data.error || data.message || `HTTP ${response.status}`);
                 error.status = response.status;
                 error.code = data.code || 'UNKNOWN_ERROR';
